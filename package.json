@@ -1,12 +1,13 @@
 {
   "name": "express-starter-template",
   "version": "1.0.0",
+  "type": "module",
   "description": "A customizable and production-ready Express.js boilerplate built for speed, scalability, and simplicity. This template serves as a solid foundation for building RESTful APIs, microservices, or full-stack web applications with Node.js.",
-  "main": "server.js",
+  "main": "server.mjs",
   "scripts": {
     "test": "jest",
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "start": "node src/server.mjs",
+    "dev": "nodemon src/server.mjs"
   },
   "author": "Emmanuel M-A",
   "license": "MIT",
