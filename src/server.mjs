@@ -4,7 +4,7 @@ configDotenv();
 
 import app from "./app.mjs";
 import logger from './logger/winston-logger.mjs';
-import setupSwaggerDocs from './docs/swagger.mjs';
+import { setupSwaggerDocs } from './docs/swagger.mjs';
 
 const PORT = process.env.PORT || 5000;
 

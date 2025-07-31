@@ -1,5 +1,5 @@
 import winston from 'winston';
-import LoggerInterface from './logger.interface.mjs';
+import LoggerInterface from './logger-interface.mjs';
 
 const { combine, timestamp, printf, colorize, errors } = winston.format;
 

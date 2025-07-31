@@ -1,7 +1,3 @@
-import { configDotenv } from "dotenv";
-
-configDotenv();
-
 import express from "express";
 import { errorHandler } from "./middleware/error-handler.mjs";
 import cookieParser from "cookie-parser";
