@@ -1,4 +1,6 @@
 import os from "os";
+import ApiError from "../utils/api-error.mjs";
+import { StatusCodes } from "http-status-codes";
 
 /**
  * The service class for the server status checks.
@@ -49,5 +51,44 @@ export class ServerUtilServices {
             uptime: process.uptime(),
             timestamp: new Date().toISOString()
         };
+    }
+
+    /**
+     * Returns a random error. Primarily used to test error handling capabilities.
+     * 
+     * @throws {ApiError} Throws a randomly selected error.
+     */
+    static async testFail() {
+        const errors = [
+            new ApiError(
+                "Database connection failed!",
+                StatusCodes.INTERNAL_SERVER_ERROR,
+                "DATABASE_CONNECITON_ERROR"
+            ),
+            new ApiError(
+                "Unauthorized access",
+                StatusCodes.UNAUTHORIZED,
+                "ACCESS_DENIED"
+            ),
+            new ApiError(
+                "Resource not found!",
+                StatusCodes.NOT_FOUND,
+                "RESOURCE_NOT_FOUND"
+            ),
+            new ApiError(
+                "Service unavailable!",
+                StatusCodes.SERVICE_UNAVAILABLE,
+                "SERVICE_IN_DEVELOPMENT"
+            ),
+            new ApiError(
+                "Validation error!",
+                StatusCodes.BAD_REQUEST,
+                "VALIDATION_ERROR"
+            )
+        ];
+
+        const randomError = errors[Math.floor(Math.random() * errors.length)];
+
+        throw randomError;
     }
 }

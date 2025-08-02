@@ -14,6 +14,7 @@ const PORT = process.env.PORT || 5000;
 
 async function startServer() {
     try {
+        // SETUP CONENCTIONS TO EXTERNAL SERVICES HERE
         // Mount Swagger at /api-docs
         await setupSwaggerDocs(app);
 

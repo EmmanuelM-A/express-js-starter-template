@@ -2,6 +2,7 @@ import expressAsyncHandler from "express-async-handler";
 import { ServerUtilServices } from "../../services/server-util-services.mjs";
 import { sendSuccessResponse } from "../../utils/response-structure.mjs";
 import { StatusCodes } from "http-status-codes";
+import logger from "../../logger/winston-logger.mjs";
 
 /**
  * Handles server checks endpoint requests.
@@ -19,6 +20,8 @@ export class ServerController {
             "Ping sent to the server successfully!",
             pingData
         );
+
+        logger.debug("Ping sent!");
     });
 
     /**
@@ -33,6 +36,8 @@ export class ServerController {
             "Health check returned successfully!",
             healthCheckData
         );
+
+        logger.debug("Health check data sent!");
     });
 
     /**
@@ -47,5 +52,18 @@ export class ServerController {
             "Server status returned successfully!",
             serverStatusData
         );
+
+        logger.debug("Status info sent!");
+    });
+
+    /**
+     * Thows an error on request to test error handling.
+     */
+
+    static testFail = expressAsyncHandler(async (request, response) => {
+        
+        await ServerUtilServices.testFail();
+        
+        logger.debug("You should not see this message!");
     });
 }
