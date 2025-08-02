@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import { limiter } from "./middleware/api-rate-limiter.mjs";
 import helmet from "helmet";
 import cors from "cors";
+import serverRouter from "./api/server/server-routes.mjs";
 
 const app = express();
 
@@ -19,9 +20,10 @@ app.use(
     })
 );
 app.use("/api/v1", limiter);
+app.use("/api/server", limiter);
 
 // Route setup
-
+app.use("/api/server", serverRouter);
 
 // Error handling middleware
 app.use(errorHandler);

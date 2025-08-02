@@ -1,6 +1,6 @@
-import { configDotenv } from "dotenv";
+import dotenv from "dotenv";
 
-configDotenv();
+dotenv.config();
 
 import app from "./app.mjs";
 import logger from './logger/winston-logger.mjs';
