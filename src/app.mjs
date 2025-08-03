@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser";
 import { limiter } from "./middleware/api-rate-limiter.mjs";
 import helmet from "helmet";
 import cors from "cors";
-import serverRouter from "./api/server/server-routes.mjs";
+import serverRouter from "./api/v1/routes/server-routes.mjs";
 
 const app = express();
 
