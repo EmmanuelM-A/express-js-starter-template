@@ -1,0 +1,17 @@
+summary: Get server health
+description: Returns server health information including uptime, memory usage, CPU count, and load average.
+operationId: getServerHealth
+tags: [Server]
+responses:
+  '200':
+    description: Server health check returned successfully.
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/SuccessEnvelope.yml'
+  '500':
+    description: Internal server error.
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/ErrorEnvelope.yml'

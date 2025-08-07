@@ -1,0 +1,17 @@
+type: object
+description: Standard success wrapper used by every endpoint for successful responses.
+properties:
+  success:
+    type: boolean
+    description: Shows that a response was successful.
+    example: true
+  message:
+    type: string
+    description: Explains what action caused a successful response.
+    example: Resource has been created successfully.
+  data:
+    type: any
+    description: The data object returned after a requirements.
+required:
+  - success
+  - message

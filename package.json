@@ -3,15 +3,17 @@
   "version": "1.0.0",
   "type": "module",
   "description": "A customizable and production-ready Express.js boilerplate built for speed, scalability, and simplicity. This template serves as a solid foundation for building RESTful APIs, microservices, or full-stack web applications with Node.js.",
-  "main": "server.mjs",
+  "main": "src/server.mjs",
   "scripts": {
-    "test": "jest",
-    "start": "node src/server.mjs",
-    "dev": "nodemon src/server.mjs"
+    "test": "vitest",
+    "bundle-docs": "swagger-cli bundle src/docs/v1/openapi.yaml -o src/docs/bundled-swagger.yaml -t yaml",
+    "start": "npm run bundle-docs && node src/server.mjs",
+    "dev": "npm run bundle-docs && nodemon src/server.mjs"
   },
   "author": "Emmanuel M-A",
   "license": "MIT",
   "dependencies": {
+    "@apidevtools/swagger-cli": "^4.0.4",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
@@ -20,10 +22,14 @@
     "express-rate-limit": "^8.0.1",
     "helmet": "^8.1.0",
     "http-status-codes": "^2.3.0",
-    "winston": "^3.17.0"
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.17.0",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
-    "jest": "^30.0.5",
-    "nodemon": "^3.1.10"
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.4",
+    "vitest": "^3.2.4"
   }
 }

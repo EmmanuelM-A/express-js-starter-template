@@ -1,0 +1,38 @@
+# Swagger/OpenAPI documentation for the blog API
+# This file describes the API endpoints, request/response formats, and security requirements.
+
+openapi: 3.1.0
+info:
+  title: DSA Visualizer Backend
+  version: 1.0.0
+  description: API documentation for the DSA Visualizer Backend
+
+servers:
+  - url: http://localhost:5000/api/v1
+
+components:
+  schemas:
+    SuccessEnvelope:
+      $ref: "./components/schemas/SuccessEnvelope.yml"
+
+    ErrorEnvelope:
+      $ref: "./components/schemas/ErrorEnvelope.yml"
+
+paths:
+  # ----------------- SERVER ENDPOINTS -----------------
+
+  /server/ping:
+    get:
+      $ref: './routes/server/ping.yml'
+
+  /server/health:
+    get:
+      $ref: './routes/server/health.yml'
+
+  /server/status:
+    get:
+      $ref: './routes/server/status.yml'
+
+  /server/test-fail:
+    get:
+      $ref: './routes/server/test-fail.yml'

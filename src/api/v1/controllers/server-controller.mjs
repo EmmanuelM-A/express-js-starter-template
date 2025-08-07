@@ -5,7 +5,7 @@ import { StatusCodes } from "http-status-codes";
 import logger from "../../../logger/winston-logger.mjs";
 
 /**
- * Handles server checks endpoint requests.
+ * Handles server check endpoint requests.
  */
 export class ServerController {
     /**
@@ -59,11 +59,10 @@ export class ServerController {
     /**
      * Thows an error on request to test error handling.
      */
-
     static testFail = expressAsyncHandler(async (request, response) => {
         
         await ServerUtilServices.testFail();
         
-        logger.debug("You should not see this message!");
+        logger.error("You should not see this message!");
     });
 }

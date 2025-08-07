@@ -1,0 +1,158 @@
+openapi: 3.1.0
+info:
+  title: DSA Visualizer Backend
+  version: 1.0.0
+  description: API documentation for the DSA Visualizer Backend
+servers:
+  - url: 'http://localhost:5000/api/v1'
+components:
+  schemas:
+    SuccessEnvelope:
+      type: object
+      description: Standard success wrapper used by every endpoint for successful responses.
+      properties:
+        success:
+          type: boolean
+          description: Shows that a response was successful.
+          example: true
+        message:
+          type: string
+          description: Explains what action caused a successful response.
+          example: Resource has been created successfully.
+        data:
+          type: any
+          description: The data object returned after a requirements.
+      required:
+        - success
+        - message
+    ErrorEnvelope:
+      type: object
+      description: Standard error wrapper used by every endpoint for unsuccessful responses.
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: Informs the recipient that the request failed.
+        message:
+          type: string
+          example: Invalid request payload.
+          description: A descriptive message detailing what occured to cause the error.
+        error:
+          type: object
+          description: An object containing addtitional information about the error.
+          properties:
+            code:
+              type: string
+              example: NO_RESOURCES_FOUND.
+              description: A code used to identify the error.
+            details:
+              type: string
+              example: Operation does not exist.
+              description: Addittional details to explain what caused the error.
+        stackTrace:
+          type: string
+          description: Only included in development mode.
+          example: 'ApiError: No operation found at ...'
+      required:
+        - success
+        - message
+        - error
+paths:
+  /server/ping:
+    get:
+      summary: Ping the server
+      description: Sends a simple ping request to check if the server is alive and responsive.
+      operationId: pingServer
+      tags:
+        - Server
+      responses:
+        '200':
+          description: Server responded to ping successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /server/health:
+    get:
+      summary: Get server health
+      description: 'Returns server health information including uptime, memory usage, CPU count, and load average.'
+      operationId: getServerHealth
+      tags:
+        - Server
+      responses:
+        '200':
+          description: Server health check returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /server/status:
+    get:
+      summary: Get server status
+      description: Returns the current status and uptime of the server.
+      operationId: getServerStatus
+      tags:
+        - Server
+      responses:
+        '200':
+          description: Server status returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /server/test-fail:
+    get:
+      summary: Test server error handling
+      description: This endpoint intentionally throws an error for testing error-handling workflows.
+      operationId: testServerFailure
+      tags:
+        - Server
+      responses:
+        '400':
+          description: Validation error or bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Unauthorized access.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '404':
+          description: Resource not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '503':
+          description: Service unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'

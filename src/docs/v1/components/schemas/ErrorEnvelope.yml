@@ -1,0 +1,31 @@
+type: object
+description: Standard error wrapper used by every endpoint for unsuccessful responses.
+properties:
+  success:
+    type: boolean
+    example: false
+    description: Informs the recipient that the request failed.
+  message:
+    type: string
+    example: "Invalid request payload."
+    description: A descriptive message detailing what occured to cause the error.
+  error:
+    type: object
+    description: An object containing addtitional information about the error.
+    properties:
+      code:
+        type: string
+        example: "NO_RESOURCES_FOUND."
+        description: A code used to identify the error.
+      details:
+        type: string
+        example: "Operation does not exist."
+        description: Addittional details to explain what caused the error.
+  stackTrace:
+    type: string
+    description: "Only included in development mode."
+    example: "ApiError: No operation found at ..."
+required:
+  - success
+  - message
+  - error

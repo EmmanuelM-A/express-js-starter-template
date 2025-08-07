@@ -1,0 +1,35 @@
+summary: Test server error handling
+description: This endpoint intentionally throws an error for testing error-handling workflows.
+operationId: testServerFailure
+tags: [Server]
+responses:
+  '400':
+    description: Validation error or bad request.
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/ErrorEnvelope.yml'
+  '401':
+    description: Unauthorized access.
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/ErrorEnvelope.yml'
+  '404':
+    description: Resource not found.
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/ErrorEnvelope.yml'
+  '500':
+    description: Internal server error.
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/ErrorEnvelope.yml'
+  '503':
+    description: Service unavailable.
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/ErrorEnvelope.yml'

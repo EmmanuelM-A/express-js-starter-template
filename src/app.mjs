@@ -20,13 +20,16 @@ app.use(
     })
 );
 app.use("/api/v1", limiter);
-app.use("/api/server", limiter);
 
 // Route setup
-app.use("/api/server", serverRouter);
+app.use("/api/v1/server", serverRouter);
 
 // Error handling middleware
 app.use(errorHandler);
 
 
 export default app;
+
+// TODO: LOOK INTO ALL THE TESTS
+// TODO: IMPLEMENT THE REST OF TESTS
+// TODO: REVIEW & DOCUMENT CODE

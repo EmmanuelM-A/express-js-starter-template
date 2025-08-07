@@ -45,7 +45,7 @@ const baseLogger = winston.createLogger({
     level: LOG_LEVEL,
     levels: winston.config.npm.levels,
     transports: [consoleTransport],
-    defaultMeta: { service: SERVICE_NAME } // You can make this dynamic
+    defaultMeta: { service: SERVICE_NAME }
 });
 
 /**

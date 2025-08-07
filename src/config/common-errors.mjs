@@ -6,9 +6,9 @@ import { StatusCodes } from 'http-status-codes';
  */
 export const COMMON_ERRORS_MAP = {
     [StatusCodes.BAD_REQUEST]: {
-        message: 'Validation failed.',
-        code: 'VALIDATION_ERROR',
-        details: 'One or more input fields are invalid.'
+        message: 'Bad request',
+        code: 'BAD_REQUEST',
+        details: 'The request was invalid'
     },
 
     [StatusCodes.UNAUTHORIZED]: {

@@ -1,0 +1,17 @@
+summary: Get server status
+description: Returns the current status and uptime of the server.
+operationId: getServerStatus
+tags: [Server]
+responses:
+  '200':
+    description: Server status returned successfully.
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/SuccessEnvelope.yml'
+  '500':
+    description: Internal server error.
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/ErrorEnvelope.yml'

@@ -66,7 +66,7 @@ export class ServerUtilServices {
                 "DATABASE_CONNECITON_ERROR"
             ),
             new ApiError(
-                "Unauthorized access",
+                "Unauthorized access!",
                 StatusCodes.UNAUTHORIZED,
                 "ACCESS_DENIED"
             ),

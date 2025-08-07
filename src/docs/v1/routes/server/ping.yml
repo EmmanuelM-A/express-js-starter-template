@@ -1,0 +1,17 @@
+summary: Ping the server
+description: Sends a simple ping request to check if the server is alive and responsive.
+operationId: pingServer
+tags: [Server]
+responses:
+  '200':
+    description: Server responded to ping successfully.
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/SuccessEnvelope.yml'
+  '500':
+    description: Internal server error.
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/ErrorEnvelope.yml'
