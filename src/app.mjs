@@ -30,6 +30,4 @@ app.use(errorHandler);
 
 export default app;
 
-// TODO: LOOK INTO ALL THE TESTS
-// TODO: IMPLEMENT THE REST OF TESTS
 // TODO: REVIEW & DOCUMENT CODE

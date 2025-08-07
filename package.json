@@ -1,5 +1,5 @@
 {
-  "name": "express-starter-template",
+  "name": "express-js-starter-template",
   "version": "1.0.0",
   "type": "module",
   "description": "A customizable and production-ready Express.js boilerplate built for speed, scalability, and simplicity. This template serves as a solid foundation for building RESTful APIs, microservices, or full-stack web applications with Node.js.",
@@ -27,7 +27,6 @@
     "yamljs": "^0.3.0"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
     "nodemon": "^3.1.10",
     "supertest": "^7.1.4",
     "vitest": "^3.2.4"
