@@ -29,5 +29,3 @@ app.use(errorHandler);
 
 
 export default app;
-
-// TODO: REVIEW & DOCUMENT CODE
