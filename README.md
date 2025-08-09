@@ -566,7 +566,257 @@ export default new PinoLogger();
 
 ## Error Handling
 
+The template provides robust error handling with standardized API responses.
+
+### ApiError Class
+
+Custom error class for API-specific errors:
+
+```javascript
+import ApiError from '../utils/api-error.mjs';
+import { StatusCodes } from 'http-status-codes';
+
+// Throw a custom error
+throw new ApiError(
+    'User not found',
+    StatusCodes.NOT_FOUND,
+    'USER_NOT_FOUND',
+    { userId: 123 }
+);
+```
+
+### Error Handler Middleware
+
+The global error handler in `/src/middleware/error-handler.mjs` automatically:
+- Catches all thrown errors
+- Maps them to standardized HTTP responses
+- Logs errors with context
+- Hides sensitive information in production
+
+### Standardized Error Responses
+
+All errors follow a consistent structure:
+
+```json
+{
+    "success": false,
+    "message": "User not found",
+    "error": {
+        "code": "USER_NOT_FOUND",
+        "details": "No user found with ID 123"
+    },
+    "stackTrace": "Error: User not found..." // Development only
+}
+```
+
+### Common Error Patterns
+
+```javascript
+// Validation error
+throw new ApiError(
+    'Validation failed',
+    StatusCodes.UNPROCESSABLE_ENTITY,
+    'VALIDATION_ERROR',
+    {
+        fields: ['email', 'password'],
+        errors: {
+            email: 'Invalid email format',
+            password: 'Password too short'
+        }
+    }
+);
+
+// Authentication error
+throw new ApiError(
+    'Invalid credentials',
+    StatusCodes.UNAUTHORIZED,
+    'AUTH_FAILED'
+);
+
+// Resource conflict
+throw new ApiError(
+    'User already exists',
+    StatusCodes.CONFLICT,
+    'USER_EXISTS',
+    { email: user.email }
+);
+```
+
+
+## Security Features
+
+### Built-in Security Middleware
+
+- **Helmet**: Sets security headers
+- **CORS**: Configurable cross-origin resource sharing
+- **Rate Limiting**: Prevents abuse (100 requests per 15 minutes)
+- **Input Validation**: Built-in JSON parsing with limits
+
+### Security Best Practices
+
+1. **Environment Variables**: Never commit sensitive data
+2. **Input Validation**: Always validate and sanitize inputs
+3. **Authentication**: Implement proper authentication mechanisms
+4. **HTTPS**: Always use HTTPS in production
+5. **Dependency Updates**: Regularly update dependencies
+
+### Adding Authentication
+
+Example JWT authentication middleware:
+
+```javascript
+// src/middleware/auth.mjs
+import jwt from 'jsonwebtoken';
+import ApiError from '../utils/api-error.mjs';
+import { StatusCodes } from 'http-status-codes';
+
+export const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        throw new ApiError(
+            'Access token required',
+            StatusCodes.UNAUTHORIZED,
+            'MISSING_TOKEN'
+        );
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) {
+            throw new ApiError(
+                'Invalid or expired token',
+                StatusCodes.UNAUTHORIZED,
+                'INVALID_TOKEN'
+            );
+        }
+        req.user = user;
+        next();
+    });
+};
+```
+
+## Performance Optimization
+
+### Built-in Optimizations
+
+- **Compression**: Gzip compression for responses
+- **Caching Headers**: Proper cache control headers
+- **Rate Limiting**: Prevents server overload
+- **Error Handling**: Prevents memory leaks from unhandled errors
+
+### Additional Optimizations
+
+1. **Database Indexing**: Create appropriate database indexes
+2. **Connection Pooling**: Use connection pools for databases
+3. **Caching**: Implement Redis for frequently accessed data
+4. **Load Balancing**: Use multiple server instances
+5. **CDN**: Serve static assets via CDN
+
+## Deployment
+
+### Environment Setup
+
+1. **Production Environment Variables**
+   ```env
+   NODE_ENV=production
+   PORT=5000
+   DATABASE_URL=mongodb://production-db:27017/myapp
+   LOG_LEVEL=warn
+   ```
+
+2. **Build Production Image**
+   ```bash
+   docker build -f Dockerfile.Prod -t myapp:latest .
+   ```
+
+### Popular Deployment Platforms
+
+#### Heroku
+```bash
+# Install Heroku CLI and login
+heroku create myapp-name
+git push heroku main
+```
+
+#### AWS ECS
+```bash
+# Build and push to ECR
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <account-id>.dkr.ecr.us-east-1.amazonaws.com
+docker tag myapp:latest <account-id>.dkr.ecr.us-east-1.amazonaws.com/myapp:latest
+docker push <account-id>.dkr.ecr.us-east-1.amazonaws.com/myapp:latest
+```
+
+#### DigitalOcean App Platform
+Create `app.yaml`:
+```yaml
+name: myapp
+services:
+- name: api
+  source_dir: /
+  github:
+    repo: your-username/your-repo
+    branch: main
+  run_command: npm start
+  http_port: 5000
+  instance_count: 1
+  instance_size_slug: basic-xxs
+```
+
+## Scripts Reference
+
+| Script | Description |
+|--------|-------------|
+| `npm start` | Start production server |
+| `npm run dev` | Start development server with hot reload |
+| `npm test` | Run all tests |
+| `npm run test:watch` | Run tests in watch mode |
+| `npm run test:coverage` | Run tests with coverage report |
+| `npm run bundle-docs` | Generate Swagger documentation |
+
 ## Contributing
+
+I welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+### Development Workflow
+
+1. **Fork the repository**
+2. **Create a feature branch**
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+3. **Make your changes**
+4. **Write tests** for new functionality
+5. **Run the test suite**
+   ```bash
+   npm test
+   ```
+6. **Commit your changes**
+   ```bash
+   git commit -m 'Add amazing feature'
+   ```
+7. **Push to your branch**
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+8. **Open a Pull Request**
+
+### Code Style
+
+- Use ES6+ features and modern JavaScript
+- Follow the existing code structure and patterns
+- Write descriptive commit messages
+- Add JSDoc comments for new functions
+- Ensure all tests pass before submitting PR
+
+## Additional Resources
+
+- **Express.js Documentation**: [https://expressjs.com/](https://expressjs.com/)
+- **Node.js Best Practices**: [https://github.com/goldbergyoni/nodebestpractices](https://github.com/goldbergyoni/nodebestpractices)
+- **Swagger/OpenAPI Specification**: [https://swagger.io/specification/](https://swagger.io/specification/)
+- **Vitest Documentation**: [https://vitest.dev/](https://vitest.dev/)
+- **Winston Logging**: [https://github.com/winstonjs/winston](https://github.com/winstonjs/winston)
+- **Docker Best Practices**: [https://docs.docker.com/develop/dev-best-practices/](https://docs.docker.com/develop/dev-best-practices/)
 
 ## License
 
@@ -574,11 +824,10 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 
 ## Support
 
-- Issues: GitHub Issues
-- Discussions: GitHub Discussions
-- Email: emmanuel@example.com
+- **Issues**: [GitHub Issues](https://github.com/EmmanuelM-A/express-js-starter-template/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/EmmanuelM-A/express-js-starter-template/discussions)
 
 
-Built with ❤️ by [Emmanuel M-A]()
+**Built with ❤️ by [Emmanuel M-A](https://github.com/EmmanuelM-A)**
 
-Happy coding!
+*Happy coding! 🚀*
