@@ -18,15 +18,19 @@ A modern, scalable, and production-ready Express.js starter template built with 
 
 - [Quick Start](#quick-start)
 - [Project Structure](#project-structure)
-- [Configuration]()
-- [API Documentation]()
-- [Testing]()
-- [Docker Usage]()
-- [Database Integration]()
-- [Logging System]()
-- [Error Handling]()
-- [Contributing]()
-- [License]()
+- [Configuration](#configuration)
+- [API Documentation](#api-documentation)
+- [Testing](#testing)
+- [Docker Usage](#docker-usage)
+- [Database Integration](#database-inegration)
+- [Logging System](#logging-system)
+- [Error Handling](#error-handling)
+- [Security Features](#security-features)
+- [Performance Optimization](#performance-optimization)
+- [Deployment](#deployment)
+- [Scripts Reference](#scripts-reference)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Quick Start
 
