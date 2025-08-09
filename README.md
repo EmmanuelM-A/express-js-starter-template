@@ -208,50 +208,365 @@ export const settings = {
 };
 ```
 
+## API Documentation
+
+This template includes comprehensive API documentation using Swagger/OpenAPI 3.1.
+
+### Accessing Documentation
+
+- Development: `http://localhost:5000/api-docs`
+- Production: `https://your-domain.com/api-docs`
+
+### Documentation Structure
+
+The documentation is organized in modular YAML files:
+
+```bash
+src/docs/
+│   └── v1/                         # Versioned documentation
+│       ├── components/             # Resuable data models
+│       │       ├── parameters/
+│       │       └── schemas/
+│       ├── routes/                 # Endpoint-specific documentation
+│       └── openapi.yaml            # Main OpenAPI documentation              
+├── bundled-swagger.yaml            # The bundled yaml file
+└── swagger.mjs                     # Setups the Swagger UI
+```
+
+### Adding New Endpoints
+
+1. Create endpoint documentation in `/src/docs/v1/routes/`.
+
+2. Reference it in `/src/docs/v1/openapi.yaml`.;hjl20
+
+3. Run `npm run bundle-docs` to regenerate the documentation.
+
+### Example Documentation
+
+```yaml
+# /src/docs/v1/routes/users/create.yml
+summary: Create a new user
+description: Creates a new user account with the provided information
+operationId: createUser
+tags: [Users]
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '../../components/schemas/CreateUserRequest.yml'
+responses:
+  '201':
+    description: User created successfully
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/SuccessEnvelope.yml'
+```
+
+
+
+## Testing
+
+This template includes a comprehensive testing setup using **Vitest**.
+
+### Test Structure
+
+```bash
+tests/
+├── unit/                    # Unit tests for individual functions/classes
+├── integration/            # Integration tests for API endpoints
+└── e2e/                   # End-to-end tests for complete workflows
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run specific test file
+npm test tests/unit/services/server-util-services.test.js
+```
+
+### Writing Tests
+
+#### Unit Test Example
+
+```javascript
+// tests/unit/services/user-service.test.js
+import { describe, it, expect, beforeEach } from 'vitest';
+import { UserService } from '../../../src/services/user-service.mjs';
+
+describe('UserService', () => {
+    it('should create a new user', async () => {
+        const userData = { name: 'John Doe', email: 'john@example.com' };
+        const result = await UserService.createUser(userData);
+        
+        expect(result).toHaveProperty('id');
+        expect(result.name).toBe(userData.name);
+    });
+});
+```
+
+#### Integration Test Example
+
+```javascript
+// tests/integration/api/users.test.js
+import { describe, it, expect } from 'vitest';
+import request from 'supertest';
+import app from '../../../src/app.mjs';
+
+describe('Users API', () => {
+    it('should create a user via POST /api/v1/users', async () => {
+        const userData = { name: 'Jane Doe', email: 'jane@example.com' };
+        
+        const response = await request(app)
+            .post('/api/v1/users')
+            .send(userData)
+            .expect(201);
+            
+        expect(response.body.success).toBe(true);
+        expect(response.body.data).toHaveProperty('id');
+    });
+});
+```
+
+### Test Configuration
+
+Vitest is configured in `vitest.config.js`:
+
+```javascript
+export default {
+    test: {
+        globals: true,
+        environment: 'node',
+        coverage: {
+            provider: 'v8',
+            reporter: ['text', 'json', 'html']
+        }
+    }
+};
+```
 
 ## Docker Usage
 
-### Development
+The template includes Docker configurations for both development and production environments.
 
-### Production
-
-**NOTE** - If you have mutple external servers/dependencies I suggest using docker-compose instead
-
-## Project Extension Guide & Walkthrough
-
-### Integrating Databases - Setup & Usage
-
-In the `src` folder add the following folders and files:
+### Development with Docker
 
 ```bash
-├── database/
-│   ├── models/                 # Access models
-│   ├── schemas/                # Database schema
-│   └── db-connection.mjs       # Connection point to db
+# Build development image
+docker build -f Dockerfile.Dev -t express-starter:dev .
+
+# Run development container
+docker run -p 5000:5000 -v $(pwd):/app express-starter:dev
 ```
 
-The `models/` acts as ...
-
-
-### Testing - Setup & Usage
-
-Tests in this project are handled via `vitest` and can be run using this script `npm test`.
-
-The the tests folder is split into three sub folders as shown below:
+### Production with Docker
 
 ```bash
-├── tests/
-│   ├── e2e/                 
-│   ├── integration/                
-│   └── unit/       
+# Build production image
+docker build -f Dockerfile.Prod -t express-starter:prod .
+
+# Run production container
+docker run -p 5000:5000 express-starter:prod
+```
+
+### Docker Compose (Recommended)
+
+Create a `docker-compose.yml` file:
+
+```yaml
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.Dev
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - mongodb
+      - redis
+
+  mongodb:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+volumes:
+  mongo_data:
+```
+
+## Database Inegration
+
+This template is designed to work with any database. Here's how to integrate popular options:
+
+### MongoDB with Mongoose
+
+1. **Install dependencies**
+   ```bash
+   npm install mongoose
+   ```
+
+2. **Create database structure**
+   ```
+   src/database/
+   ├── models/              # Mongoose models
+   │   └── user.mjs
+   ├── schemas/             # Mongoose schemas
+   │   └── user-schema.mjs
+   └── db-connection.mjs    # Database connection
+   ```
+
+3. **Example implementation**
+   ```javascript
+   // src/database/db-connection.mjs
+   import mongoose from 'mongoose';
+   import logger from '../logger/winston-logger.mjs';
+
+   export const connectDatabase = async () => {
+       try {
+           await mongoose.connect(process.env.DATABASE_URL);
+           logger.info('Connected to MongoDB');
+       } catch (error) {
+           logger.error('Database connection failed:', error);
+           process.exit(1);
+       }
+   };
+   ```
+
+### PostgreSQL with Sequelize
+
+1. **Install dependencies**
+   ```bash
+   npm install sequelize pg pg-hstore
+   ```
+
+2. **Create database structure**
+   ```
+   src/database/
+   ├── models/              # Sequelize models
+   ├── migrations/          # Database migrations
+   ├── seeders/            # Database seeders
+   └── db-connection.mjs    # Sequelize configuration
+   ```
+
+### Redis Integration
+
+```javascript
+// src/services/cache-service.mjs
+import redis from 'redis';
+import logger from '../logger/winston-logger.mjs';
+
+const client = redis.createClient({
+    url: process.env.REDIS_URL
+});
+
+client.on('error', (err) => logger.error('Redis error:', err));
+
+export const CacheService = {
+    async get(key) {
+        return await client.get(key);
+    },
+    
+    async set(key, value, expireInSeconds = 3600) {
+        return await client.setEx(key, expireInSeconds, JSON.stringify(value));
+    }
+};
 ```
 
 
-### Logging Mechanism
+## Logging System
 
-The project uses winston logging as the default centralized logging mechanism. It implements a logging interface
-defined in the file `src/logger/logger-interface.mjs`. The logging mechanism can easy be swittched out with
-another of your preference but it must implement the interface defined in the file to maintain compatibility.
+The template uses a pluggable logging system with Winston as the default implementation.
+
+### Logger Interface
+
+All loggers must implement the interface defined in `/src/logger/logger-interface.mjs`:
+
+```javascript
+export default class LoggerInterface {
+    info(message, meta) { /* Implementation required */ }
+    warn(message, meta) { /* Implementation required */ }
+    error(message, meta) { /* Implementation required */ }
+    debug(message, meta) { /* Implementation required */ }
+    log(level, message, meta) { /* Implementation required */ }
+}
+```
+
+### Using the Logger
+
+```javascript
+import logger from '../logger/winston-logger.mjs';
+
+// Basic logging
+logger.info('User created successfully');
+logger.error('Database connection failed');
+logger.debug('Processing request', { userId: 123, action: 'login' });
+
+// With metadata
+logger.info('Payment processed', {
+    userId: 123,
+    amount: 99.99,
+    currency: 'USD',
+    transactionId: 'txn_123456'
+});
+```
+
+### Log Formats
+
+- **Development**: Colored console output with timestamps
+- **Production**: Structured JSON format for log aggregation
+
+### Custom Logger Implementation
+
+To use a different logger (e.g., Pino), create a new implementation:
+
+```javascript
+// src/logger/pino-logger.mjs
+import pino from 'pino';
+import LoggerInterface from './logger-interface.mjs';
+
+class PinoLogger extends LoggerInterface {
+    constructor() {
+        super();
+        this.logger = pino();
+    }
+
+    info(message, meta = {}) {
+        this.logger.info(meta, message);
+    }
+    
+    // ... implement other methods
+}
+
+export default new PinoLogger();
+```
+
+
+## Error Handling
+
+## Contributing
 
 ## License
 
