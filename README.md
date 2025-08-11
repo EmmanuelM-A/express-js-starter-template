@@ -75,8 +75,8 @@ npm run dev     # Using nodemom (for development)
 ```
 
 Access the application:
-- API: [Development Server](http://localhost:5000/api/v1)
-- Documentation: [Swagger UI](http://localhost:5000/api-docs)
+- API: http://localhost:5000/api/v1
+- Documentation: http://localhost:5000/api-docs
 
 ## Project Structure
 
@@ -86,8 +86,8 @@ express-js-starter-template/
 │   └── workflows/
 │       └── tests.yml               # Automated testing pipeline
 ├── src/                            
-│   ├── api/                        
-│   │   └── v1/                     # API version 1
+│   ├── api/                        # API core (with versioning)
+│   │   └── v1/                     
 │   │       ├── controllers/        # API route definitions
 │   │       └── routes/             # Express route definitions
 │   ├── config/                     # Application configuration
