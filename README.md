@@ -834,4 +834,4 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 
 **Built with ❤️ by [Emmanuel M-A](https://github.com/EmmanuelM-A)**
 
-*Happy coding! 🚀*
+*Tears and sweat aren’t the foundation, but they’re the path to one. Happy coding!*
