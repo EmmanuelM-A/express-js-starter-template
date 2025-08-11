@@ -63,7 +63,7 @@ export class ServerUtilServices {
             new ApiError(
                 "Database connection failed!",
                 StatusCodes.INTERNAL_SERVER_ERROR,
-                "DATABASE_CONNECITON_ERROR"
+                "DATABASE_CONNECTION_ERROR"
             ),
             new ApiError(
                 "Unauthorized access!",

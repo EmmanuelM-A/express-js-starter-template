@@ -177,7 +177,7 @@ describe('ServerUtilServices', () => {
                 {
                     message: "Database connection failed!",
                     status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    code: "DATABASE_CONNECITON_ERROR"
+                    code: "DATABASE_CONNECTION_ERROR"
                 },
                 {
                     message: "Unauthorized access!",
