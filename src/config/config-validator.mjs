@@ -16,6 +16,7 @@ import {
 } from "./env-settings.mjs";
 
 import logger from "../logger/winston-logger.mjs";
+import {DevEnvConfig, DevEnvConfigSchema} from "./env-configs/dev-env-settings.mjs";
 
 /**
  * ConfigValidator is responsible for validating environment variables
@@ -29,17 +30,17 @@ export class ConfigValidator {
      *
      * @param {Object} schema Validation schema (e.g., Joi schema) that defines required environment variables.
      * @param {Object} [env=process.env] The environment variables to validate. Defaults to process.env.
-     * @returns {boolean} True if validation passes, false otherwise.
+     * @returns {boolean} True if validation passes, false otherwise. // FIXME UPDATE DOCUMENTATION
      */
     static validate(schema, env = process.env) {
-        const { error } = schema.validate(env);
+        const { error, value: envVars } = schema.validate(env);
 
         if (error) {
             logger.error(`Config validation error: ${error.message || error}`);
-            return false;
+            // Throw an error
         }
 
-        return true;
+        return envVars;
     }
 
     /**
@@ -52,7 +53,7 @@ export class ConfigValidator {
     static getConfig(environment) {
         switch (environment) {
             case "development":
-                return DevEnvSettings;
+                return ConfigValidator.validate(DevEnvConfigSchema, DevEnvConfig);
             case "production":
                 return ProdEnvSettings;
             case "test":

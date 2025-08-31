@@ -1,5 +1,4 @@
 /**
- * @module settings
  * @description
  * Centralized application-wide configuration object.
  *
@@ -15,7 +14,6 @@
  */
 
 import { ConfigValidator } from "./config-validator.mjs";
-import {settings} from "express/lib/application.js";
 
 const envVars = process.env;
 
@@ -30,17 +28,12 @@ const envSettings = ConfigValidator.getConfig(NODE_ENV);
  */
 export const settings = {
     /**
-     * Default port if none is defined in environment configuration.
-     * @type {number}
-     */
-    DEFAULT_PORT: 5000,
-
-    /**
      * General application settings.
      */
     app: {
         ENV: NODE_ENV,
-        APP_NAME: "express-starter-template",
+        SERVICE_NAME: "express-starter-template",
+        SERVICE_URL: ""
     },
 
     /**
@@ -59,7 +52,7 @@ export const settings = {
         LOG_DIRECTORY: "../logs",
         LOG_FORMAT: envSettings.LOG_FORMAT,
         LOG_DATE_FORMAT: "%Y-%m-%d %H:%M:%S",
-        IS_FILE_LOGGING_ENABLED: false,
+        IS_FILE_LOGGING_ENABLED: envSettings.IS_FILE_LOGGING_ENABLED || false,
     },
 
     /**
