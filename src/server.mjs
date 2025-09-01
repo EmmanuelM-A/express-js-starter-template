@@ -1,13 +1,13 @@
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config({ path: "./.env" });
 
 import app from "./app.mjs";
 import logger from './logger/winston-logger.mjs';
 import { setupSwaggerDocs } from './docs/swagger.mjs';
 import { settings } from "./config/settings.mjs";
 
-const PORT = process.env.PORT || settings.DEFAULT_PORT;
+const PORT = settings.server.PORT || settings.server.DEFAULT_PORT;
 
 //
 // --------------------- Application Startup Logic ---------------------
