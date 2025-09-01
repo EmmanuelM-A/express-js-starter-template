@@ -53,7 +53,8 @@ export class ConfigValidator {
     static getConfig(environment) {
         switch (environment) {
             case "development":
-                return ConfigValidator.validate(DevEnvConfigSchema, DevEnvConfig);
+                // return ConfigValidator.validate(DevEnvConfigSchema, DevEnvConfig);
+                return DevEnvConfig;
             case "production":
                 return ProdEnvSettings;
             case "test":

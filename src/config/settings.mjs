@@ -1,4 +1,5 @@
 /**
+ * @module settings
  * @description
  * Centralized application-wide configuration object.
  *
@@ -15,9 +16,7 @@
 
 import { ConfigValidator } from "./config-validator.mjs";
 
-const envVars = process.env;
-
-const NODE_ENV = envVars.NODE_ENV || "development";
+const NODE_ENV = process.env.NODE_ENV || "development";
 
 const envSettings = ConfigValidator.getConfig(NODE_ENV);
 
@@ -40,7 +39,7 @@ export const settings = {
      * Server-related configuration.
      */
     server: {
-        DEFAULT_PORT: 5000,
+        DEFAULT_PORT: 5009,
         PORT: envSettings.PORT,
     },
 

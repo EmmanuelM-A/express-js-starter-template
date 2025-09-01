@@ -9,6 +9,9 @@
  */
 
 import Joi from "joi";
+import dotenv from "dotenv";
+
+dotenv.config({ path: "../.env.development" });
 
 /**
  * Development environment configuration defaults.
@@ -17,13 +20,13 @@ import Joi from "joi";
  */
 export const DevEnvConfig = {
     // Server
-    PORT: 5000,
+    PORT: parseInt(process.env.PORT) || 5000,
 
     // Logs
-    LOG_LEVEL: "debug",
+    LOG_LEVEL: process.env.LOG_LEVEL || "debug",
     LOG_FORMAT: (info) => `${info.timestamp} [${info.level}]: ${info.message}`,
     LOG_DATE_FORMAT: "%Y-%m-%d %H:%M:%S",
-    IS_FILE_LOGGING_ENABLED: false,
+    IS_FILE_LOGGING_ENABLED: process.env.IS_FILE_LOGGING_ENABLED === "true",
 
     // Security (extend later)
     // Docs (extend later)
@@ -38,12 +41,8 @@ export const DevEnvConfigSchema = Joi.object({
     PORT: Joi.number().default(5000),
 
     // Logs
-    LOG_LEVEL: Joi.string()
-        .default("debug"),
-
-    // Note: Joi does not validate functions, so we treat LOG_FORMAT as optional passthrough
+    LOG_LEVEL: Joi.string().default("debug"),
     LOG_FORMAT: Joi.any().default(DevEnvConfig.LOG_FORMAT),
-
     LOG_DATE_FORMAT: Joi.string().default("%Y-%m-%d %H:%M:%S"),
     IS_FILE_LOGGING_ENABLED: Joi.boolean().default(false),
 
