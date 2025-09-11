@@ -14,7 +14,7 @@ import dotenv from "dotenv";
 dotenv.config({ path: "../.env.development" });
 
 /**
- * Development environment configuration defaults.
+ * Development environment variables and configuration defaults.
  * These are applied before validation to ensure the app
  * has sensible defaults in development mode.
  */
@@ -27,9 +27,6 @@ export const DevEnvConfig = {
     LOG_FORMAT: (info) => `${info.timestamp} [${info.level}]: ${info.message}`,
     LOG_DATE_FORMAT: "%Y-%m-%d %H:%M:%S",
     IS_FILE_LOGGING_ENABLED: process.env.IS_FILE_LOGGING_ENABLED === "true",
-
-    // Security (extend later)
-    // Docs (extend later)
 };
 
 /**
@@ -45,7 +42,4 @@ export const DevEnvConfigSchema = Joi.object({
     LOG_FORMAT: Joi.any().default(DevEnvConfig.LOG_FORMAT),
     LOG_DATE_FORMAT: Joi.string().default("%Y-%m-%d %H:%M:%S"),
     IS_FILE_LOGGING_ENABLED: Joi.boolean().default(false),
-
-    // Security (extend later)
-    // Docs (extend later)
 });

@@ -8,15 +8,11 @@
  * structured before the application starts.
  */
 
-import {
-    DevEnvSettings,
-    ProdEnvSettings,
-    StagEnvSettings,
-    TestEnvSettings
-} from "./env-settings.mjs";
-
 import logger from "../logger/winston-logger.mjs";
-import {DevEnvConfig, DevEnvConfigSchema} from "./env-configs/dev-env-settings.mjs";
+import {DevEnvConfig, DevEnvConfigSchema} from "./env-configs/dev-env-configs.mjs";
+import {ProdEnvConfig, ProdEnvConfigSchema} from "./env-configs/prod-env-configs.mjs";
+import {TestEnvConfig, TestEnvConfigSchema} from "./env-configs/test-env-configs.mjs";
+import {StageEnvConfig, StageEnvConfigSchema} from "./env-configs/stage-env-configs.mjs";
 
 /**
  * ConfigValidator is responsible for validating environment variables
@@ -56,11 +52,14 @@ export class ConfigValidator {
                 // return ConfigValidator.validate(DevEnvConfigSchema, DevEnvConfig);
                 return DevEnvConfig;
             case "production":
-                return ProdEnvSettings;
+                // return ConfigValidator.validate(ProdEnvConfigSchema, ProdEnvConfig);
+                return ProdEnvConfig;
             case "test":
-                return TestEnvSettings;
+                // return ConfigValidator.validate(TestEnvConfigSchema, TestEnvConfig);
+                return TestEnvConfig;
             case "staging":
-                return StagEnvSettings;
+                // return ConfigValidator.validate(StageEnvConfigSchema, StageEnvConfig);
+                return StageEnvConfig;
             default:
                 logger.error(`Invalid environment: ${environment}`);
                 //throw new Error(`Unknown environment: ${environment}`);

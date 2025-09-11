@@ -15,8 +15,13 @@
  */
 
 import { ConfigValidator } from "./config-validator.mjs";
+import dotenv from "dotenv";
+
+dotenv.config({ path: "../.env" });
 
 const NODE_ENV = process.env.NODE_ENV || "development";
+
+console.log(NODE_ENV);
 
 const envSettings = ConfigValidator.getConfig(NODE_ENV);
 
