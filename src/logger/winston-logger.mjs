@@ -1,11 +1,12 @@
 import winston from 'winston';
 import LoggerInterface from './logger-interface.mjs';
+import {settings} from "../config/settings.mjs";
 
 const { combine, timestamp, printf, colorize, errors } = winston.format;
 
 // Format for development logging (colored, stack traces, etc.)
 const devConsoleFormat = printf(info => {
-    let output = `${info.timestamp} [${info.level}]: ${info.message}`;
+    let output = settings.logs.LOG_FORMAT(info);
     if (info.stack) output += `\n${info.stack}`;
     return output;
 });
@@ -16,12 +17,12 @@ const prettyJsonFormat = printf(info => {
 });
 
 // Check environment
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = settings.app.ENV === 'production';
 
 // Set log level via env or default to 'debug'
-const LOG_LEVEL = process.env.LOG_LEVEL || 'debug';
+const LOG_LEVEL = settings.logs.LOG_LEVEL;
 
-const SERVICE_NAME = process.env.SERVICE_NAME || 'service-name';
+const SERVICE_NAME = settings.app.SERVICE_NAME;
 
 // Console transport setup
 const consoleTransport = new winston.transports.Console({
@@ -74,4 +75,15 @@ class WinstonLogger extends LoggerInterface {
     }
 }
 
-export default new WinstonLogger();
+/**
+ * Application-wide Winston logger instance.
+ *
+ * Provides structured logging functionality with multiple transport options
+ * and configurable log levels. Use this instance throughout the application
+ * for consistent logging behavior.
+ *
+ * @type {WinstonLogger}
+ */
+const logger = new WinstonLogger();
+
+export default logger;

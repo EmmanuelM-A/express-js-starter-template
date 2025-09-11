@@ -19,8 +19,8 @@ export const setupSwaggerDocs = async (app) => {
 
     app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-    const DOCS_URL = process.env.SERVICE_URL?.trim() !== ''
-        ? `${process.env.SERVICE_URL}/api-docs` : `http://localhost:${process.env.PORT || settings.DEFAULT_PORT}/api-docs`;
+    const DOCS_URL = settings.app.SERVICE_URL?.trim() !== ''
+        ? `${settings.app.SERVICE_URL}/api-docs` : `http://localhost:${settings.server.PORT || settings.server.DEFAULT_PORT}/api-docs`;
 
     logger.info(`Swagger docs available at ${DOCS_URL}`)
 }
