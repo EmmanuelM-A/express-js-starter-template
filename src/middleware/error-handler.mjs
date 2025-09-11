@@ -6,7 +6,7 @@ import express from 'express';
 import logger from '../logger/winston-logger.mjs';
 import { StatusCodes } from 'http-status-codes';
 import { sendErrorResponse } from '../utils/response-structure.mjs';
-import { COMMON_ERRORS_MAP } from '../config/common-errors.mjs';
+import { COMMON_ERRORS_MAP } from '../config/errors.mjs';
 
 /**
  * Global Express error-handling middleware. This function intercepts thrown or passed errors from any middleware or route handler.
