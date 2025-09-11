@@ -6,7 +6,7 @@ const { combine, timestamp, printf, colorize, errors } = winston.format;
 
 // Format for development logging (colored, stack traces, etc.)
 const devConsoleFormat = printf(info => {
-    let output = settings.logs.LOG_FORMAT(info);
+    let output = settings.logs.CONSOLE_LOG_FORMAT(info);
     if (info.stack) output += `\n${info.stack}`;
     return output;
 });
@@ -25,17 +25,17 @@ const LOG_LEVEL = settings.logs.LOG_LEVEL;
 const SERVICE_NAME = settings.app.SERVICE_NAME;
 
 // Console transport setup
-const consoleTransport = new winston.transports.Console({
+const transport = new winston.transports.Console({
     level: LOG_LEVEL,
     format: isProduction
         ? combine(
-            timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+            timestamp({ format: settings.logs.LOG_DATE_FORMAT }),
             errors({ stack: true }),
             prettyJsonFormat
         )
         : combine(
             colorize({ all: true }),
-            timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+            timestamp({ format: settings.logs.LOG_DATE_FORMAT }),
             errors({ stack: true }),
             devConsoleFormat
         )
@@ -45,7 +45,7 @@ const consoleTransport = new winston.transports.Console({
 const baseLogger = winston.createLogger({
     level: LOG_LEVEL,
     levels: winston.config.npm.levels,
-    transports: [consoleTransport],
+    transports: [transport],
     defaultMeta: { service: SERVICE_NAME }
 });
 
