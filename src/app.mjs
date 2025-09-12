@@ -1,5 +1,5 @@
 import express from "express";
-import { errorHandler } from "./middleware/error-handler.mjs";
+import {setupErrorHandlers} from "./middleware/api-error-handler.mjs";
 import cookieParser from "cookie-parser";
 import { limiter } from "./middleware/api-rate-limiter.mjs";
 import helmet from "helmet";
@@ -24,8 +24,6 @@ app.use("/api/v1", limiter);
 // Route setup
 app.use("/api/v1/server", serverRouter);
 
-// Error handling middleware
-app.use(errorHandler);
-
+setupErrorHandlers(app);
 
 export default app;

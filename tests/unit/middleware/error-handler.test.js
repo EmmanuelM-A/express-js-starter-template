@@ -3,13 +3,13 @@
  */
 
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { errorHandler } from '../../../src/middleware/error-handler.mjs';
+import { apiErrorHandler } from '../../../src/middleware/api-error-handler.mjs';
 import { StatusCodes } from 'http-status-codes';
-import { sendErrorResponse } from '../../../src/utils/response-structure.mjs';
+import { sendErrorResponse } from '../../../src/utils/response-delivery.mjs';
 import logger from '../../../src/logger/winston-logger.mjs';
 
 // Mock modules using Vitest's `vi.mock`
-vi.mock('../../../src/utils/response-structure.mjs', () => ({
+vi.mock('../../../src/utils/response-delivery.mjs', () => ({
     sendErrorResponse: vi.fn()
 }));
 vi.mock('../../../src/logger/winston-logger.mjs', () => ({
@@ -59,7 +59,7 @@ describe('errorHandler middleware', () => {
         expectedDetails,
         expectedStackTrace
     }) => {
-        errorHandler(error, mockReq, mockRes, mockNext);
+        apiErrorHandler(error, mockReq, mockRes, mockNext);
 
         expect(mockNext).not.toHaveBeenCalled();
 
@@ -88,7 +88,7 @@ describe('errorHandler middleware', () => {
         const error = new Error('Headers already sent');
         mockRes.headersSent = true;
 
-        errorHandler(error, mockReq, mockRes, mockNext);
+        apiErrorHandler(error, mockReq, mockRes, mockNext);
 
         expect(mockNext).toHaveBeenCalledWith(error);
         expect(sendErrorResponse).not.toHaveBeenCalled();
