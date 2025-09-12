@@ -1,21 +1,21 @@
-import dotenv from "dotenv";
-
-dotenv.config({ path: "./.env" });
+/**
+ * Entry point to run the application.
+ */
 
 import app from "./app.mjs";
 import logger from './logger/winston-logger.mjs';
 import { setupSwaggerDocs } from './docs/swagger.mjs';
 import { settings } from "./config/settings.mjs";
 
-const PORT = settings.server.PORT || settings.server.DEFAULT_PORT;
+const PORT = settings.server.PORT;
 
-//
-// --------------------- Application Startup Logic ---------------------
-//
 
+/**
+ * Starts the server.
+ */
 async function startServer() {
     try {
-        // SETUP CONENCTIONS TO EXTERNAL SERVICES HERE
+        // SETUP CONNECTIONS TO EXTERNAL SERVICES HERE
 
         // Mount Swagger at /api-docs
         await setupSwaggerDocs(app);
@@ -30,11 +30,8 @@ async function startServer() {
     }
 }
 
-startServer();
+await startServer();
 
-//
-// --------------------- Graceful Shutdown ---------------------
-//
 
 /**
  * This ensures that when the server is stopped (e.g., by Ctrl+C or a SIGTERM 
@@ -54,7 +51,7 @@ process.on('SIGTERM', async () => {
 
 async function shutdown() {
     try {
-        // CLOSE CONENCTIONS TO ANY EXTERNAL SERVICES HERE
+        // CLOSE CONNECTIONS TO ANY EXTERNAL SERVICES HERE
         logger.info('Application shut down.');
         process.exit(0);
     } catch (err) {

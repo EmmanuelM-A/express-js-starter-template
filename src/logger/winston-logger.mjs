@@ -6,7 +6,7 @@ const { combine, timestamp, printf, colorize, errors } = winston.format;
 
 // Format for development logging (colored, stack traces, etc.)
 const devConsoleFormat = printf(info => {
-    let output = settings.logs.CONSOLE_LOG_FORMAT(info);
+    let output = `${info.timestamp} [${info.level}]: ${info.message}`;
     if (info.stack) output += `\n${info.stack}`;
     return output;
 });
@@ -29,13 +29,13 @@ const transport = new winston.transports.Console({
     level: LOG_LEVEL,
     format: isProduction
         ? combine(
-            timestamp({ format: settings.logs.LOG_DATE_FORMAT }),
+            timestamp({ format: settings.logs.DATE_FORMAT }),
             errors({ stack: true }),
             prettyJsonFormat
         )
         : combine(
             colorize({ all: true }),
-            timestamp({ format: settings.logs.LOG_DATE_FORMAT }),
+            timestamp({ format: settings.logs.DATE_FORMAT }),
             errors({ stack: true }),
             devConsoleFormat
         )

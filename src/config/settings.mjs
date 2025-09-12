@@ -9,7 +9,7 @@
 
 import dotenv from "dotenv";
 
-dotenv.config({ path: "../.env" });
+dotenv.config({ path: "../.env", quiet: true });
 
 /**
  * Application-wide configuration settings.
@@ -39,9 +39,7 @@ export const settings = {
     logs: {
         LOG_LEVEL: "info",
         LOG_DIRECTORY: "../logs",
-        CONSOLE_LOG_FORMAT: (info) => `${info.timestamp} [${info.level}]: ${info.message}`,
-        FILE_LOG_FORMAT: "",
-        LOG_DATE_FORMAT: "%Y-%m-%d %H:%M:%S",
+        DATE_FORMAT: "YYYY-MM-DD HH:mm",
         IS_FILE_LOGGING_ENABLED: false,
     },
 

@@ -9,7 +9,7 @@ class ApiResponse {
     }
 
     toJson() {
-        return { ...this }
+        return JSON.parse(JSON.stringify(this));
     }
 }
 
@@ -22,7 +22,7 @@ export class ApiSuccessResponse extends ApiResponse {
 
 
 export class ApiErrorResponse extends ApiResponse {
-    constructor(message, code = 'GENERIC_ERROR', details = null, stackTrace = null) {
+    constructor(message, code , details = null, stackTrace = null) {
         super(false, message);
         this.error = { code, details };
 
