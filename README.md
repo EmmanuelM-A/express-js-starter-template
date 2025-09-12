@@ -106,7 +106,7 @@ express-js-starter-template/
 │   ├── services/                   # Business logic and external services
 │   ├── utils/                      # Utility functions and helpers
 │   │   ├── api-error.mjs           # Custom error class
-│   │   └── response-structure.mjs  # Standardized API responses
+│   │   └── response-delivery.mjs  # Standardized API responses
 │   ├── app.mjs                     # Express app configuration
 │   └── server.mjs                  # Application entry point
 ├── tests/                          # Test suite

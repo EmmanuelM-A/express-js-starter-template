@@ -3,7 +3,7 @@
  */
 
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { sendSuccessResponse, sendErrorResponse } from '../../../src/utils/response-structure.mjs';
+import { sendSuccessResponse, sendErrorResponse } from '../../../src/utils/response-delivery.mjs';
 import { StatusCodes } from 'http-status-codes';
 
 /**

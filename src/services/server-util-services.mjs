@@ -1,5 +1,5 @@
 import os from "os";
-import ApiError from "../utils/api-error.mjs";
+import ApiError from "../errors/api-error.mjs";
 import { StatusCodes } from "http-status-codes";
 
 /**
