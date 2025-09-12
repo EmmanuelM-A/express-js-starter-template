@@ -38,9 +38,9 @@ export const settings = {
      */
     logs: {
         LOG_LEVEL: "info",
-        LOG_DIRECTORY: "../logs",
+        LOG_DIRECTORY: "logs",
         DATE_FORMAT: "YYYY-MM-DD HH:mm",
-        IS_FILE_LOGGING_ENABLED: false,
+        IS_FILE_LOGGING_ENABLED: true,
     },
 
     /**

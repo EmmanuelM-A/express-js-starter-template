@@ -49,7 +49,8 @@ export const apiErrorHandler = (error, request, response, next) => {
         errorLog.stackTrace = error.stack;
     }
 
-    logger.error(errorLog);
+    const { message, ...meta } = errorLog;
+    logger.error(message, meta);
 
     sendErrorResponse(
         response,
@@ -84,7 +85,7 @@ export const unhandledErrorHandler = (error, request, response, next) => {
         errorResponse.stackTrace = error.stack;
     }
 
-    logger.error(errorLog);
+    logger.error(errorLog.message, { ...errorLog });
 
     sendErrorResponse(
         response,
