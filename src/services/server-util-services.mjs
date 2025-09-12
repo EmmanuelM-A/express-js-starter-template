@@ -1,6 +1,6 @@
 import os from "os";
 import ApiError from "../errors/api-error.mjs";
-import { StatusCodes } from "http-status-codes";
+import {StatusCodes} from "http-status-codes";
 
 /**
  * The service class for the server status checks.
@@ -35,21 +35,19 @@ export class ServerUtilServices {
             },
             cpuCount: os.cpus().length,
             platform: os.platform(),
-            loadAverage: os.loadavg(),
-            timestamp: new Date().toISOString(),
+            loadAverage: os.loadavg()
         };
     }
 
     /**
      * Returns the server uptime and status.
      * 
-     * @returns An object containg the server status.
+     * @returns An object containing the server status.
      */
     static async status() {
         return {
             status: 'running',
-            uptime: process.uptime(),
-            timestamp: new Date().toISOString()
+            uptime: process.uptime()
         };
     }
 
@@ -87,8 +85,6 @@ export class ServerUtilServices {
             )
         ];
 
-        const randomError = errors[Math.floor(Math.random() * errors.length)];
-
-        throw randomError;
+        throw errors[Math.floor(Math.random() * errors.length)];
     }
 }

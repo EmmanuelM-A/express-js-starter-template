@@ -37,7 +37,7 @@ export const settings = {
      * Logging configuration (structured in future).
      */
     logs: {
-        LOG_LEVEL: "info",
+        LOG_LEVEL: "debug",
         LOG_DIRECTORY: "logs",
         DATE_FORMAT: "YYYY-MM-DD HH:mm",
         IS_FILE_LOGGING_ENABLED: true,
