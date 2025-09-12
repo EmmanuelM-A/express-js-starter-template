@@ -92,7 +92,7 @@ express-js-starter-template/
 │   │       └── routes/             # Express route definitions
 │   ├── config/                     # Application configuration
 │   │   ├── settings.mjs            # App-wide settings
-│   │   └── common-errors.mjs       # Standardized error definitions
+│   │   └── errors.mjs       # Standardized error definitions
 │   ├── docs/                       # API documentation
 │   │   ├── v1/                     # Version-specific docs
 │   │   ├── bundled-swagger.yaml    # Generated OpenAPI spec
@@ -106,7 +106,7 @@ express-js-starter-template/
 │   ├── services/                   # Business logic and external services
 │   ├── utils/                      # Utility functions and helpers
 │   │   ├── api-error.mjs           # Custom error class
-│   │   └── response-structure.mjs  # Standardized API responses
+│   │   └── response-delivery.mjs  # Standardized API responses
 │   ├── app.mjs                     # Express app configuration
 │   └── server.mjs                  # Application entry point
 ├── tests/                          # Test suite
@@ -136,7 +136,7 @@ express-js-starter-template/
 
     - `settings.mjs`: Application-wide constants and settings.
 
-    - `common-errors.mjs`: Standardized error codes and messages.
+    - `errors.mjs`: Standardized error codes and messages.
 
 - **`/src/docs/`**: API documentation system.
 

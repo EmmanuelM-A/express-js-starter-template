@@ -1,12 +1,22 @@
 import winston from 'winston';
+import fs from 'fs';
+import path from 'path';
 import LoggerInterface from './logger-interface.mjs';
-import {settings} from "../config/settings.mjs";
+import { settings } from "../config/settings.mjs";
 
-const { combine, timestamp, printf, colorize, errors } = winston.format;
+const { combine, timestamp, printf, colorize, errors, json } = winston.format;
+
+// Ensure log directory exists
+if (settings.logs.IS_FILE_LOGGING_ENABLED) {
+    const logDir = path.resolve(settings.logs.LOG_DIRECTORY);
+    if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true });
+    }
+}
 
 // Format for development logging (colored, stack traces, etc.)
 const devConsoleFormat = printf(info => {
-    let output = settings.logs.LOG_FORMAT(info);
+    let output = `${info.timestamp} [${info.level}]: ${info.message}`;
     if (info.stack) output += `\n${info.stack}`;
     return output;
 });
@@ -22,6 +32,7 @@ const isProduction = settings.app.ENV === 'production';
 // Set log level via env or default to 'debug'
 const LOG_LEVEL = settings.logs.LOG_LEVEL;
 
+// Service name (used as metadata)
 const SERVICE_NAME = settings.app.SERVICE_NAME;
 
 // Console transport setup
@@ -29,23 +40,39 @@ const consoleTransport = new winston.transports.Console({
     level: LOG_LEVEL,
     format: isProduction
         ? combine(
-            timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+            timestamp({ format: settings.logs.DATE_FORMAT }),
             errors({ stack: true }),
             prettyJsonFormat
         )
         : combine(
             colorize({ all: true }),
-            timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+            timestamp({ format: settings.logs.DATE_FORMAT }),
             errors({ stack: true }),
             devConsoleFormat
         )
 });
 
+// File transport for errors (JSON structured logs)
+const fileTransports = [];
+if (settings.logs.IS_FILE_LOGGING_ENABLED) {
+    fileTransports.push(
+        new winston.transports.File({
+            filename: path.join(settings.logs.LOG_DIRECTORY, 'errors.log'),
+            level: 'error',
+            format: combine(
+                timestamp(),
+                errors({ stack: true }),
+                prettyJsonFormat
+            )
+        })
+    );
+}
+
 // Winston base logger instance
 const baseLogger = winston.createLogger({
     level: LOG_LEVEL,
     levels: winston.config.npm.levels,
-    transports: [consoleTransport],
+    transports: [consoleTransport, ...fileTransports],
     defaultMeta: { service: SERVICE_NAME }
 });
 

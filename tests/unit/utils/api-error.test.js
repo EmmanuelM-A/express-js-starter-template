@@ -3,7 +3,7 @@
  */
 
 import { vi, describe, it, expect } from 'vitest';
-import ApiError from '../../../src/utils/api-error.mjs';
+import ApiError from '../../../src/errors/api-error.mjs';
 import { StatusCodes } from 'http-status-codes';
 
 describe('ApiError', () => {

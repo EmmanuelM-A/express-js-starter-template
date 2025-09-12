@@ -1,7 +1,7 @@
 import express from "express";
-import { errorHandler } from "./middleware/error-handler.mjs";
+import {setupErrorHandlers} from "./middleware/api-error-handler.mjs";
 import cookieParser from "cookie-parser";
-import { limiter } from "./middleware/api-rate-limiter.mjs";
+import {globalLimiter} from "./middleware/api-rate-limiter.mjs";
 import helmet from "helmet";
 import cors from "cors";
 import serverRouter from "./api/v1/routes/server-routes.mjs";
@@ -19,13 +19,11 @@ app.use(
         credentials: true,
     })
 );
-app.use("/api/v1", limiter);
+app.use("/api/v1", globalLimiter);
 
 // Route setup
 app.use("/api/v1/server", serverRouter);
 
-// Error handling middleware
-app.use(errorHandler);
-
+setupErrorHandlers(app);
 
 export default app;

@@ -1,6 +1,6 @@
 import expressAsyncHandler from "express-async-handler";
 import { ServerUtilServices } from "../../../services/server-util-services.mjs";
-import { sendSuccessResponse } from "../../../utils/response-structure.mjs";
+import { sendSuccessResponse } from "../../../utils/response-delivery.mjs";
 import { StatusCodes } from "http-status-codes";
 import logger from "../../../logger/winston-logger.mjs";
 
@@ -57,7 +57,7 @@ export class ServerController {
     });
 
     /**
-     * Thows an error on request to test error handling.
+     * Throws an error on request to test error handling.
      */
     static testFail = expressAsyncHandler(async (request, response) => {
         

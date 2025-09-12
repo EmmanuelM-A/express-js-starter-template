@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes';
  * Common error mappings used throughout the application.
  * Provides standardized error structure for known HTTP status codes.
  */
-export const COMMON_ERRORS_MAP = {
+export const COMMON_ERRORS = {
     [StatusCodes.BAD_REQUEST]: {
         message: 'Bad request',
         code: 'BAD_REQUEST',

@@ -5,7 +5,7 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import os from 'os';
 import { ServerUtilServices } from '../../../src/services/server-util-services.mjs';
-import ApiError from '../../../src/utils/api-error.mjs';
+import ApiError from '../../../src/errors/api-error.mjs';
 import { StatusCodes } from 'http-status-codes';
 
 // Mock os module using vi.mock
