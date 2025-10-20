@@ -26,7 +26,7 @@ export const throwDatabaseError = (message = 'Database error', errorCode, detail
     throw new ApiError(message, StatusCodes.INTERNAL_SERVER_ERROR, errorCode, details);
 };
 
-export const throwFileNotFoundError = (message = 'File not found', errorCode, details = null) => {
+export const throwResourceNotFoundError = (message = 'Resource not found', errorCode, details = null) => {
     throw new ApiError(message, StatusCodes.NOT_FOUND, errorCode, details);
 };
 

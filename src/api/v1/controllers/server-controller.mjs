@@ -1,5 +1,5 @@
 import expressAsyncHandler from "express-async-handler";
-import { ServerUtilServices } from "../../../services/server-util-services.mjs";
+import ServerUtilServices from "../../../services/server-util-services.mjs";
 import { sendSuccessResponse } from "../../../utils/response-delivery.mjs";
 import { StatusCodes } from "http-status-codes";
 import logger from "../../../logger/winston-logger.mjs";
@@ -8,17 +8,21 @@ import logger from "../../../logger/winston-logger.mjs";
  * Handles server check endpoint requests.
  */
 export class ServerController {
+    constructor() {
+        this.serverUtilServices = new ServerUtilServices();
+    }
+
     /**
      * Pings the server.
     */
-    static ping = expressAsyncHandler(async (request, response) => {
-        const pingData = await ServerUtilServices.ping();
+    sendPing = expressAsyncHandler(async (request, response) => {
+        const pong = this.serverUtilServices.ping();
 
         sendSuccessResponse(
             response,
             StatusCodes.OK,
             "Ping sent to the server successfully!",
-            pingData
+            pong
         );
 
         logger.debug("Ping sent!");
@@ -27,8 +31,8 @@ export class ServerController {
     /**
      * Gets health check data.
      */
-    static health = expressAsyncHandler(async (request, response) => {
-        const healthCheckData = await ServerUtilServices.health();
+    getHealthData = expressAsyncHandler(async (request, response) => {
+        const healthCheckData = this.serverUtilServices.health();
 
         sendSuccessResponse(
             response,
@@ -41,28 +45,20 @@ export class ServerController {
     });
 
     /**
-     * Gets the current status of the server.
-     */
-    static status = expressAsyncHandler(async (request, response) => {
-        const serverStatusData = await ServerUtilServices.status();
-
-        sendSuccessResponse(
-            response,
-            StatusCodes.OK,
-            "Server status returned successfully!",
-            serverStatusData
-        );
-
-        logger.debug("Status info sent!");
-    });
-
-    /**
      * Throws an error on request to test error handling.
      */
-    static testFail = expressAsyncHandler(async (request, response) => {
+    testErrorHandler = expressAsyncHandler(async (request, response) => {
         
-        await ServerUtilServices.testFail();
+        this.serverUtilServices.testFail();
         
         logger.error("You should not see this message!");
     });
 }
+
+/**
+ * Pre-configured ServerController instance ready for use in routes.
+ * @type {ServerController}
+ */
+const serverController = new ServerController();
+
+export default serverController;

@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 
 /**
- * Common error mappings used as a fallback for the error-handler middleware.
+ * Common error mappings for use throughout the application.
  * Provides standardized error structure for known HTTP status codes.
  */
 export const COMMON_ERRORS = {
