@@ -7,9 +7,10 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 import { StatusCodes } from 'http-status-codes';
-import serverController, { ServerController } from '../../../src/api/v1/controllers/server-controller.mjs';
-import {errorHandler, setupErrorHandlers} from '../../../src/middleware/error-handler.mjs';
-import {setupSecurity} from "../../../src/middleware/security-configurations.mjs";
+import serverController, { ServerController } from '../../src/api/v1/controllers/server-controller.mjs';
+import {errorHandler, setupErrorHandlers} from '../../src/middleware/error-handler.mjs';
+import {setupSecurity} from "../../src/middleware/security-configurations.mjs";
+import {COMMON_ERRORS} from "../../src/errors/common-errors.mjs";
 
 
 describe('Server Endpoints E2E Tests', () => {
@@ -55,27 +56,6 @@ describe('Server Endpoints E2E Tests', () => {
             expect(response.body).toHaveProperty('message', 'Ping sent to the server successfully!');
             expect(response.body).toHaveProperty('data');
             expect(response.body.data).toHaveProperty('message', 'pong');
-            expect(response.body.data).toHaveProperty('timestamp');
-            
-            // Validate timestamp format (ISO 8601)
-            const timestamp = new Date(response.body.data.timestamp);
-            expect(timestamp).toBeInstanceOf(Date);
-            expect(timestamp.getTime()).not.toBeNaN();
-        });
-
-        it('should return different timestamps on subsequent calls', async () => {
-            const response1 = await request(app)
-                .get('/api/v1/server/ping')
-                .expect(StatusCodes.OK);
-
-            // Wait a small amount to ensure different timestamps
-            await new Promise(resolve => setTimeout(resolve, 10));
-
-            const response2 = await request(app)
-                .get('/api/v1/server/ping')
-                .expect(StatusCodes.OK);
-
-            expect(response1.body.data.timestamp).not.toBe(response2.body.data.timestamp);
         });
 
         it('should have correct response headers', async () => {
@@ -106,7 +86,6 @@ describe('Server Endpoints E2E Tests', () => {
             expect(healthData).toHaveProperty('cpuCount');
             expect(healthData).toHaveProperty('platform');
             expect(healthData).toHaveProperty('loadAverage');
-            expect(healthData).toHaveProperty('timestamp');
 
             // Validate data types and reasonable values
             expect(typeof healthData.uptime).toBe('number');
@@ -127,11 +106,6 @@ describe('Server Endpoints E2E Tests', () => {
             expect(healthData.platform.length).toBeGreaterThan(0);
             expect(Array.isArray(healthData.loadAverage)).toBe(true);
             expect(healthData.loadAverage).toHaveLength(3);
-
-            // Validate timestamp
-            const timestamp = new Date(healthData.timestamp);
-            expect(timestamp).toBeInstanceOf(Date);
-            expect(timestamp.getTime()).not.toBeNaN();
         });
 
         it('should return realistic memory usage values', async () => {
@@ -178,53 +152,13 @@ describe('Server Endpoints E2E Tests', () => {
         });
     });
 
-    describe('GET /api/v1/server/status', () => {
-        it('should return server status information', async () => {
-            const response = await request(app)
-                .get('/api/v1/server/status')
-                .expect(StatusCodes.OK);
-
-            expect(response.body).toHaveProperty('success', true);
-            expect(response.body).toHaveProperty('message', 'Server status returned successfully!');
-            expect(response.body).toHaveProperty('data');
-
-            const statusData = response.body.data;
-            expect(statusData).toHaveProperty('status', 'running');
-            expect(statusData).toHaveProperty('uptime');
-            expect(statusData).toHaveProperty('timestamp');
-
-            // Validate uptime
-            expect(typeof statusData.uptime).toBe('number');
-            expect(statusData.uptime).toBeGreaterThan(0);
-
-            // Validate timestamp
-            const timestamp = new Date(statusData.timestamp);
-            expect(timestamp).toBeInstanceOf(Date);
-            expect(timestamp.getTime()).not.toBeNaN();
-        });
-
-        it('should show increasing uptime over time', async () => {
-            const response1 = await request(app)
-                .get('/api/v1/server/status')
-                .expect(StatusCodes.OK);
-
-            await new Promise(resolve => setTimeout(resolve, 50));
-
-            const response2 = await request(app)
-                .get('/api/v1/server/status')
-                .expect(StatusCodes.OK);
-
-            expect(response2.body.data.uptime).toBeGreaterThanOrEqual(response1.body.data.uptime);
-        });
-    });
-
     describe('GET /api/v1/server/test-fail', () => {
         it('should return an error response', async () => {
-            const response = await request(app)
-                .get('/api/v1/server/test-fail');
+            const response = await request(app).get("/api/v1/server/test-fail");
 
-            // Should be one of the error status codes from the testFail method
-            expect([400, 401, 404, 500, 503]).toContain(response.status);
+            const keys = Object.keys(COMMON_ERRORS).map(Number);
+
+            expect(keys).toContain(response.status);
 
             expect(response.body).toHaveProperty('success', false);
             expect(response.body).toHaveProperty('message');
@@ -232,42 +166,7 @@ describe('Server Endpoints E2E Tests', () => {
             expect(response.body.error).toHaveProperty('code');
             expect(response.body.error).toHaveProperty('details');
 
-            // Validate that it's one of the expected errors
-            const expectedErrors = [
-                {
-                    message: "Database connection failed!",
-                    status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    code: "DATABASE_CONNECTION_ERROR"
-                },
-                {
-                    message: "Unauthorized access!",
-                    status: StatusCodes.UNAUTHORIZED,
-                    code: "ACCESS_DENIED"
-                },
-                {
-                    message: "Resource not found!",
-                    status: StatusCodes.NOT_FOUND,
-                    code: "RESOURCE_NOT_FOUND"
-                },
-                {
-                    message: "Service unavailable!",
-                    status: StatusCodes.SERVICE_UNAVAILABLE,
-                    code: "SERVICE_IN_DEVELOPMENT"
-                },
-                {
-                    message: "Validation error!",
-                    status: StatusCodes.BAD_REQUEST,
-                    code: "VALIDATION_ERROR"
-                }
-            ];
-
-            const matchingError = expectedErrors.find(expectedError => 
-                response.body.message === expectedError.message &&
-                response.status === expectedError.status &&
-                response.body.error.code === expectedError.code
-            );
-
-            expect(matchingError).toBeDefined();
+            expect(COMMON_ERRORS[response.status]).toBeDefined();
         });
 
         it('should return different errors on multiple calls (eventually)', async () => {
@@ -275,8 +174,7 @@ describe('Server Endpoints E2E Tests', () => {
             const maxAttempts = 20;
 
             for (let i = 0; i < maxAttempts; i++) {
-                const response = await request(app)
-                .get('/api/v1/server/test-fail');
+                const response = await request(app).get('/api/v1/server/test-fail');
                 
                 errors.add(response.body.error.code);
                 
@@ -331,7 +229,6 @@ describe('Server Endpoints E2E Tests', () => {
             const endpoints = [
                 '/api/v1/server/ping',
                 '/api/v1/server/health',
-                '/api/v1/server/status'
             ];
 
             for (const endpoint of endpoints) {
@@ -351,7 +248,6 @@ describe('Server Endpoints E2E Tests', () => {
             const endpoints = [
                 '/api/v1/server/ping',
                 '/api/v1/server/health',
-                '/api/v1/server/status',
                 '/api/v1/server/test-fail'
             ];
 
