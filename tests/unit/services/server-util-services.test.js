@@ -4,9 +4,9 @@
 
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import os from 'os';
-import { ServerUtilServices } from '../../../src/services/server-util-services.mjs';
+import ServerUtilServices from '../../../src/services/server-util-services.mjs';
 import ApiError from '../../../src/errors/api-error.mjs';
-import { StatusCodes } from 'http-status-codes';
+import { COMMON_ERRORS } from '../../../src/errors/common-errors.mjs';
 
 // Mock os module using vi.mock
 vi.mock('os', () => {
@@ -16,24 +16,26 @@ vi.mock('os', () => {
             platform: vi.fn(),
             loadavg: vi.fn(),
         },
-        cpus: vi.fn(), // Include named exports as well for robustness
+        cpus: vi.fn(),
         platform: vi.fn(),
         loadavg: vi.fn(),
     };
 });
 
 describe('ServerUtilServices', () => {
+    let serverUtilServices;
     let originalProcessUptime;
     let originalProcessMemoryUsage;
-    let originalDate;
 
     beforeEach(() => {
+        // Create new instance for each test
+        serverUtilServices = new ServerUtilServices();
+
         // Store original methods
         originalProcessUptime = process.uptime;
         originalProcessMemoryUsage = process.memoryUsage;
-        originalDate = global.Date;
 
-        // Mock process methods using vi.fn
+        // Mock process methods
         process.uptime = vi.fn(() => 3600); // 1 hour
         process.memoryUsage = vi.fn(() => ({
             rss: 50000000,
@@ -47,54 +49,36 @@ describe('ServerUtilServices', () => {
         os.cpus.mockReturnValue(new Array(4).fill({}));
         os.platform.mockReturnValue('linux');
         os.loadavg.mockReturnValue([0.5, 0.7, 0.8]);
-
-        // Mock Date
-        const mockDate = new Date('2024-01-01T12:00:00.000Z');
-        global.Date = vi.fn(() => mockDate);
-        global.Date.now = vi.fn(() => mockDate.getTime());
-        global.Date.prototype.toISOString = vi.fn(() => mockDate.toISOString());
     });
 
     afterEach(() => {
         // Restore original methods
         process.uptime = originalProcessUptime;
         process.memoryUsage = originalProcessMemoryUsage;
-        global.Date = originalDate;
         vi.clearAllMocks();
     });
 
     describe('ping', () => {
-        it('should return pong message with timestamp', async () => {
-            const result = await ServerUtilServices.ping();
+        it('should return pong message', () => {
+            const result = serverUtilServices.ping();
 
             expect(result).toEqual({
-                message: 'pong',
-                timestamp: '2024-01-01T12:00:00.000Z'
+                message: 'pong'
             });
         });
 
-        it('should return different timestamps on multiple calls', async () => {
-            // First call
-            const result1 = await ServerUtilServices.ping();
-            
-            // Mock different time for second call
-            const mockDate2 = new Date('2024-01-01T12:01:00.000Z');
-            global.Date = vi.fn(() => mockDate2);
-            global.Date.now = vi.fn(() => mockDate2.getTime());
-            global.Date.prototype.toISOString = vi.fn(() => mockDate2.toISOString());
-            
-            const result2 = await ServerUtilServices.ping();
+        it('should return consistent response on multiple calls', () => {
+            const result1 = serverUtilServices.ping();
+            const result2 = serverUtilServices.ping();
 
+            expect(result1).toEqual(result2);
             expect(result1.message).toBe('pong');
-            expect(result2.message).toBe('pong');
-            expect(result1.timestamp).toBe('2024-01-01T12:00:00.000Z');
-            expect(result2.timestamp).toBe('2024-01-01T12:00:00.000Z');
         });
     });
 
     describe('health', () => {
-        it('should return complete health status', async () => {
-            const result = await ServerUtilServices.health();
+        it('should return complete health status', () => {
+            const result = serverUtilServices.health();
 
             expect(result).toEqual({
                 status: 'ok',
@@ -106,169 +90,141 @@ describe('ServerUtilServices', () => {
                 },
                 cpuCount: 4,
                 platform: 'linux',
-                loadAverage: [0.5, 0.7, 0.8],
-                timestamp: '2024-01-01T12:00:00.000Z'
+                loadAverage: [0.5, 0.7, 0.8]
             });
         });
 
-        it('should call process.uptime and process.memoryUsage', async () => {
-            await ServerUtilServices.health();
+        it('should call process.uptime and process.memoryUsage', () => {
+            serverUtilServices.health();
 
             expect(process.uptime).toHaveBeenCalled();
             expect(process.memoryUsage).toHaveBeenCalled();
         });
 
-        it('should call os methods for system info', async () => {
-            await ServerUtilServices.health();
+        it('should call os methods for system info', () => {
+            serverUtilServices.health();
 
             expect(os.cpus).toHaveBeenCalled();
             expect(os.platform).toHaveBeenCalled();
             expect(os.loadavg).toHaveBeenCalled();
         });
 
-        it('should handle different system configurations', async () => {
+        it('should handle different system configurations', () => {
             // Mock different system
             os.cpus.mockReturnValue(new Array(8).fill({})); // 8 CPUs
             os.platform.mockReturnValue('darwin');
             os.loadavg.mockReturnValue([1.2, 1.5, 2.0]);
 
-            const result = await ServerUtilServices.health();
+            const result = serverUtilServices.health();
 
             expect(result.cpuCount).toBe(8);
             expect(result.platform).toBe('darwin');
             expect(result.loadAverage).toEqual([1.2, 1.5, 2.0]);
         });
-    });
 
-    describe('status', () => {
-        it('should return server status with uptime', async () => {
-            const result = await ServerUtilServices.status();
+        it('should return memory values as numbers', () => {
+            const result = serverUtilServices.health();
 
-            expect(result).toEqual({
-                status: 'running',
-                uptime: 3600,
-                timestamp: '2024-01-01T12:00:00.000Z'
-            });
-        });
-
-        it('should call process.uptime', async () => {
-            await ServerUtilServices.status();
-
-            expect(process.uptime).toHaveBeenCalled();
-        });
-
-        it('should handle different uptime values', async () => {
-            process.uptime.mockReturnValue(7200); // 2 hours
-
-            const result = await ServerUtilServices.status();
-
-            expect(result.uptime).toBe(7200);
-            expect(result.status).toBe('running');
+            expect(typeof result.memory.rss).toBe('number');
+            expect(typeof result.memory.heapUsed).toBe('number');
+            expect(typeof result.memory.heapTotal).toBe('number');
         });
     });
 
     describe('testFail', () => {
-        it('should throw an ApiError', async () => {
-            await expect(ServerUtilServices.testFail()).rejects.toThrow(ApiError);
+        it('should throw an ApiError', () => {
+            expect(() => serverUtilServices.testFail()).toThrow(ApiError);
         });
 
-        it('should throw one of the predefined errors', async () => {
-            const expectedErrors = [
-                {
-                    message: "Database connection failed!",
-                    status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    code: "DATABASE_CONNECTION_ERROR"
-                },
-                {
-                    message: "Unauthorized access!",
-                    status: StatusCodes.UNAUTHORIZED,
-                    code: "ACCESS_DENIED"
-                },
-                {
-                    message: "Resource not found!",
-                    status: StatusCodes.NOT_FOUND,
-                    code: "RESOURCE_NOT_FOUND"
-                },
-                {
-                    message: "Service unavailable!",
-                    status: StatusCodes.SERVICE_UNAVAILABLE,
-                    code: "SERVICE_IN_DEVELOPMENT"
-                },
-                {
-                    message: "Validation error!",
-                    status: StatusCodes.BAD_REQUEST,
-                    code: "VALIDATION_ERROR"
-                }
-            ];
+        it('should throw an error with valid status code from COMMON_ERRORS', () => {
+            const validStatusCodes = Object.keys(COMMON_ERRORS).map(Number);
 
             try {
-                await ServerUtilServices.testFail();
+                serverUtilServices.testFail();
             } catch (error) {
                 expect(error).toBeInstanceOf(ApiError);
-                
-                const matchingError = expectedErrors.find(expectedError => 
-                    error.message === expectedError.message &&
-                    error.status === expectedError.status &&
-                    error.code === expectedError.code
-                );
-                
-                expect(matchingError).toBeDefined();
+                expect(validStatusCodes).toContain(error.status);
             }
         });
 
-        it('should throw different errors on multiple calls (eventually)', async () => {
-            const errors = new Set();
-            const maxAttempts = 50; // Try multiple times to get different errors
+        it('should throw error with matching message, code, and details from COMMON_ERRORS', () => {
+            try {
+                serverUtilServices.testFail();
+            } catch (error) {
+                const errorConfig = COMMON_ERRORS[error.status];
+
+                expect(error.message).toBe(errorConfig.message);
+                expect(error.code).toBe(errorConfig.code);
+                expect(error.details).toBe(errorConfig.details);
+            }
+        });
+
+        it('should throw different errors on multiple calls (eventually)', () => {
+            const errorCodes = new Set();
+            const maxAttempts = 50;
 
             for (let i = 0; i < maxAttempts; i++) {
                 try {
-                    await ServerUtilServices.testFail();
+                    serverUtilServices.testFail();
                 } catch (error) {
-                    errors.add(error.code);
+                    errorCodes.add(error.code);
                 }
             }
 
             // Should have at least 2 different error types after 50 attempts
-            expect(errors.size).toBeGreaterThan(1);
+            expect(errorCodes.size).toBeGreaterThan(1);
         });
 
-        it('should always throw errors with proper ApiError structure', async () => {
-            const attempts = 5;
-            
+        it('should always throw errors with proper ApiError structure', () => {
+            const attempts = 10;
+
             for (let i = 0; i < attempts; i++) {
                 try {
-                    await ServerUtilServices.testFail();
-                    // Fail('Expected testFail to throw an error'); // Vitest has no fail
+                    serverUtilServices.testFail();
                 } catch (error) {
                     expect(error).toBeInstanceOf(ApiError);
                     expect(error.message).toBeDefined();
                     expect(error.status).toBeDefined();
                     expect(error.code).toBeDefined();
+                    expect(error.details).toBeDefined();
                     expect(typeof error.message).toBe('string');
                     expect(typeof error.status).toBe('number');
                     expect(typeof error.code).toBe('string');
                 }
             }
         });
+
+        it('should throw error with status code as number', () => {
+            try {
+                serverUtilServices.testFail();
+            } catch (error) {
+                expect(typeof error.status).toBe('number');
+                expect(error.status).toBeGreaterThan(0);
+            }
+        });
     });
 
-    describe('static method behavior', () => {
-        it('should have all methods as static', () => {
-            expect(typeof ServerUtilServices.ping).toBe('function');
-            expect(typeof ServerUtilServices.health).toBe('function');
-            expect(typeof ServerUtilServices.status).toBe('function');
-            expect(typeof ServerUtilServices.testFail).toBe('function');
+    describe('instance behavior', () => {
+        it('should be instantiable', () => {
+            const instance = new ServerUtilServices();
+            expect(instance).toBeInstanceOf(ServerUtilServices);
         });
 
-        it('should not require instantiation', async () => {
-            // All methods should work without creating an instance
-            const pingResult = await ServerUtilServices.ping();
-            const healthResult = await ServerUtilServices.health();
-            const statusResult = await ServerUtilServices.status();
+        it('should have all required methods', () => {
+            expect(typeof serverUtilServices.ping).toBe('function');
+            expect(typeof serverUtilServices.health).toBe('function');
+            expect(typeof serverUtilServices.testFail).toBe('function');
+        });
 
-            expect(pingResult).toBeDefined();
-            expect(healthResult).toBeDefined();
-            expect(statusResult).toBeDefined();
+        it('should work with multiple instances independently', () => {
+            const instance1 = new ServerUtilServices();
+            const instance2 = new ServerUtilServices();
+
+            const result1 = instance1.ping();
+            const result2 = instance2.ping();
+
+            expect(result1).toEqual(result2);
+            expect(result1.message).toBe('pong');
         });
     });
 });

@@ -5,8 +5,6 @@
  +
  */
 
-// TODO: CONSIDER ADDING ENV VALIDATION
-
 import dotenv from "dotenv";
 
 dotenv.config({ path: "../.env", quiet: true });
@@ -23,7 +21,11 @@ export const settings = {
     app: {
         ENV: process.env.NODE_ENV || "development",
         SERVICE_NAME: "express-starter-template",
-        SERVICE_URL: ""
+        SERVICE_URL: "",
+
+        JSON_REQUEST_SIZE_LIMIT: '10mb',
+        PAGINATION_LIMIT: 10,
+        PAGINATION_LIMIT_MAX: 30,
     },
 
     /**
@@ -32,6 +34,11 @@ export const settings = {
     server: {
         PORT: process.env.PORT || 5000,
     },
+
+    /**
+     * Domain-specific configurations
+     */
+    business: {},
 
     /**
      * Logging configuration (structured in future).

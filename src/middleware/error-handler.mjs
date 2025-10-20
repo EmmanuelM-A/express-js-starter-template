@@ -6,7 +6,7 @@ import express from 'express';
 import logger from '../logger/winston-logger.mjs';
 import { StatusCodes } from 'http-status-codes';
 import { sendErrorResponse } from '../utils/response-delivery.mjs';
-import { COMMON_ERRORS } from '../config/errors.mjs';
+import { COMMON_ERRORS } from '../errors/common-errors.mjs';
 import ApiError from "../errors/api-error.mjs";
 
 /**
@@ -22,7 +22,7 @@ import ApiError from "../errors/api-error.mjs";
  * @param {express.NextFunction} next - The next middleware function (typically unused here but required by Express).
  * @returns {void}
  */
-export const apiErrorHandler = (error, request, response, next) => {
+export const errorHandler = (error, request, response, next) => {
     // Delegate to Express's built-in error handler if no header set
     if (response.headersSent) return next(error);
 
@@ -105,7 +105,7 @@ export const unhandledErrorHandler = (error, request, response, next) => {
  */
 export const setupErrorHandlers = (app) => {
     // Handles known ApiErrors
-    app.use(apiErrorHandler);
+    app.use(errorHandler);
 
     // Final fallback for unhandled errors
     app.use(unhandledErrorHandler);

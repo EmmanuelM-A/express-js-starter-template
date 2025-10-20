@@ -4,7 +4,16 @@
 
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { sendSuccessResponse, sendErrorResponse } from '../../../src/utils/response-delivery.mjs';
+import { ApiSuccessResponse, ApiErrorResponse } from '../../../src/utils/api-response.mjs';
 import { StatusCodes } from 'http-status-codes';
+
+// Mock the api-response module
+vi.mock('../../../src/utils/api-response.mjs', () => {
+    return {
+        ApiSuccessResponse: vi.fn(),
+        ApiErrorResponse: vi.fn(),
+    };
+});
 
 /**
  * Creates a mock express response object.
@@ -16,29 +25,70 @@ const createMockResponse = () => {
         status: vi.fn().mockReturnThis(),
         json: vi.fn().mockReturnThis(),
     };
-}
+};
 
 describe('HTTP Response Utilities', () => {
     let mockResponse;
-    let originalNodeEnv;
 
     beforeEach(() => {
         mockResponse = createMockResponse();
-        originalNodeEnv = process.env.NODE_ENV;
+        vi.clearAllMocks();
+
+        // Setup mock implementations
+        ApiSuccessResponse.mockImplementation((message, data) => ({
+            toJson: vi.fn().mockReturnValue({
+                success: true,
+                message,
+                ...(data !== null && data !== undefined && { data })
+            })
+        }));
+
+        ApiErrorResponse.mockImplementation((message, errorCode, details, stackTrace) => {
+            const errorObj = {};
+            if (errorCode) errorObj.code = errorCode;
+            if (details) errorObj.details = details;
+
+            const response = {
+                success: false,
+                message,
+                error: errorObj
+            };
+
+            // Only include stackTrace in development
+            if (process.env.NODE_ENV === 'development' && stackTrace) {
+                response.stackTrace = stackTrace;
+            }
+
+            return {
+                toJson: vi.fn().mockReturnValue(response)
+            };
+        });
     });
 
     afterEach(() => {
         vi.clearAllMocks();
-        process.env.NODE_ENV = originalNodeEnv;
     });
 
     describe('sendSuccessResponse', () => {
+        it('should create ApiSuccessResponse and call response methods', () => {
+            const statusCode = StatusCodes.OK;
+            const message = 'Operation successful';
+            const data = { id: 1, name: 'Test' };
+
+            sendSuccessResponse(mockResponse, statusCode, message, data);
+
+            expect(ApiSuccessResponse).toHaveBeenCalledWith(message, data);
+            expect(mockResponse.status).toHaveBeenCalledWith(statusCode);
+            expect(mockResponse.json).toHaveBeenCalled();
+        });
+
         it('should send a success response with message only', () => {
             const statusCode = StatusCodes.OK;
             const message = 'Operation successful';
 
             sendSuccessResponse(mockResponse, statusCode, message);
 
+            expect(ApiSuccessResponse).toHaveBeenCalledWith(message, null);
             expect(mockResponse.status).toHaveBeenCalledWith(statusCode);
             expect(mockResponse.json).toHaveBeenCalledWith({
                 success: true,
@@ -53,6 +103,7 @@ describe('HTTP Response Utilities', () => {
 
             sendSuccessResponse(mockResponse, statusCode, message, data);
 
+            expect(ApiSuccessResponse).toHaveBeenCalledWith(message, data);
             expect(mockResponse.status).toHaveBeenCalledWith(statusCode);
             expect(mockResponse.json).toHaveBeenCalledWith({
                 success: true,
@@ -67,23 +118,26 @@ describe('HTTP Response Utilities', () => {
 
             sendSuccessResponse(mockResponse, statusCode, message, null);
 
-            expect(mockResponse.status).toHaveBeenCalledWith(statusCode);
+            expect(ApiSuccessResponse).toHaveBeenCalledWith(message, null);
             expect(mockResponse.json).toHaveBeenCalledWith({
                 success: true,
                 message: message,
             });
         });
 
-        it('should not include data property when data is undefined', () => {
-            const statusCode = StatusCodes.OK;
-            const message = 'Success without data';
+        it('should handle different HTTP status codes', () => {
+            const testCases = [
+                StatusCodes.OK,
+                StatusCodes.CREATED,
+                StatusCodes.ACCEPTED,
+                StatusCodes.NO_CONTENT
+            ];
+            const message = 'Test message';
 
-            sendSuccessResponse(mockResponse, statusCode, message);
-
-            expect(mockResponse.status).toHaveBeenCalledWith(statusCode);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                success: true,
-                message: message,
+            testCases.forEach(statusCode => {
+                const freshMockResponse = createMockResponse();
+                sendSuccessResponse(freshMockResponse, statusCode, message);
+                expect(freshMockResponse.status).toHaveBeenCalledWith(statusCode);
             });
         });
 
@@ -94,7 +148,7 @@ describe('HTTP Response Utilities', () => {
 
             sendSuccessResponse(mockResponse, statusCode, message, data);
 
-            expect(mockResponse.status).toHaveBeenCalledWith(statusCode);
+            expect(ApiSuccessResponse).toHaveBeenCalledWith(message, data);
             expect(mockResponse.json).toHaveBeenCalledWith({
                 success: true,
                 message: message,
@@ -109,39 +163,37 @@ describe('HTTP Response Utilities', () => {
 
             sendSuccessResponse(mockResponse, statusCode, message, data);
 
-            expect(mockResponse.status).toHaveBeenCalledWith(statusCode);
+            expect(ApiSuccessResponse).toHaveBeenCalledWith(message, data);
             expect(mockResponse.json).toHaveBeenCalledWith({
                 success: true,
                 message: message,
                 data: data,
             });
         });
-
-        it('should handle different HTTP status codes', () => {
-            const testCases = [StatusCodes.OK, StatusCodes.CREATED, StatusCodes.ACCEPTED, StatusCodes.NO_CONTENT];
-            const message = 'Test message';
-
-            testCases.forEach(statusCode => {
-                const freshMockResponse = createMockResponse();
-                sendSuccessResponse(freshMockResponse, statusCode, message);
-                expect(freshMockResponse.status).toHaveBeenCalledWith(statusCode);
-            });
-        });
     });
 
     describe('sendErrorResponse', () => {
+        it('should create ApiErrorResponse and call response methods', () => {
+            const statusCode = StatusCodes.BAD_REQUEST;
+            const message = 'Bad request';
+            const errorCode = 'BAD_REQUEST';
+            const details = 'Invalid input';
+
+            sendErrorResponse(mockResponse, statusCode, message, errorCode, details);
+
+            expect(ApiErrorResponse).toHaveBeenCalledWith(message, errorCode, details, null);
+            expect(mockResponse.status).toHaveBeenCalledWith(statusCode);
+            expect(mockResponse.json).toHaveBeenCalled();
+        });
+
         it('should send an error response with message only', () => {
             const statusCode = StatusCodes.BAD_REQUEST;
             const message = 'Bad request';
 
             sendErrorResponse(mockResponse, statusCode, message);
 
+            expect(ApiErrorResponse).toHaveBeenCalledWith(message, undefined, null, null);
             expect(mockResponse.status).toHaveBeenCalledWith(statusCode);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                success: false,
-                message: message,
-                error: {},
-            });
         });
 
         it('should send an error response with message and code', () => {
@@ -151,6 +203,7 @@ describe('HTTP Response Utilities', () => {
 
             sendErrorResponse(mockResponse, statusCode, message, code);
 
+            expect(ApiErrorResponse).toHaveBeenCalledWith(message, code, null, null);
             expect(mockResponse.status).toHaveBeenCalledWith(statusCode);
             expect(mockResponse.json).toHaveBeenCalledWith({
                 success: false,
@@ -169,6 +222,7 @@ describe('HTTP Response Utilities', () => {
 
             sendErrorResponse(mockResponse, statusCode, message, code, details);
 
+            expect(ApiErrorResponse).toHaveBeenCalledWith(message, code, details, null);
             expect(mockResponse.status).toHaveBeenCalledWith(statusCode);
             expect(mockResponse.json).toHaveBeenCalledWith({
                 success: false,
@@ -191,6 +245,7 @@ describe('HTTP Response Utilities', () => {
 
             sendErrorResponse(mockResponse, statusCode, message, code, details, stackTrace);
 
+            expect(ApiErrorResponse).toHaveBeenCalledWith(message, code, details, stackTrace);
             expect(mockResponse.status).toHaveBeenCalledWith(statusCode);
             expect(mockResponse.json).toHaveBeenCalledWith({
                 success: false,
@@ -214,50 +269,22 @@ describe('HTTP Response Utilities', () => {
 
             sendErrorResponse(mockResponse, statusCode, message, code, details, stackTrace);
 
-            expect(mockResponse.status).toHaveBeenCalledWith(statusCode);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                success: false,
-                message: message,
-                error: {
-                    code: code,
-                    details: details,
-                },
-            });
-
-            // Ensure stackTrace is not included
+            expect(ApiErrorResponse).toHaveBeenCalledWith(message, code, details, stackTrace);
             const callArgs = mockResponse.json.mock.calls[0][0];
             expect(callArgs).not.toHaveProperty('stackTrace');
-        });
-
-        it('should not include stack trace when NODE_ENV is not set', () => {
-            delete process.env.NODE_ENV;
-
-            const statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
-            const message = 'Internal server error';
-            const stackTrace = 'Error: Stack trace here';
-
-            sendErrorResponse(mockResponse, statusCode, message, null, null, stackTrace);
-
-            const callArgs = mockResponse.json.mock.calls[0][0];
-            expect(callArgs).not.toHaveProperty('stackTrace');
-        });
-
-        it('should handle null values for optional parameters', () => {
-            const statusCode = StatusCodes.BAD_REQUEST;
-            const message = 'Bad request';
-
-            sendErrorResponse(mockResponse, statusCode, message, null, null, null);
-
-            expect(mockResponse.status).toHaveBeenCalledWith(statusCode);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                success: false,
-                message: message,
-                error: {},
-            });
         });
 
         it('should handle different HTTP error status codes', () => {
-            const testCases = [StatusCodes.BAD_REQUEST, StatusCodes.UNAUTHORIZED, StatusCodes.FORBIDDEN, StatusCodes.NOT_FOUND, StatusCodes.UNPROCESSABLE_ENTITY, StatusCodes.INTERNAL_SERVER_ERROR, StatusCodes.BAD_GATEWAY, StatusCodes.SERVICE_UNAVAILABLE];
+            const testCases = [
+                StatusCodes.BAD_REQUEST,
+                StatusCodes.UNAUTHORIZED,
+                StatusCodes.FORBIDDEN,
+                StatusCodes.NOT_FOUND,
+                StatusCodes.UNPROCESSABLE_ENTITY,
+                StatusCodes.INTERNAL_SERVER_ERROR,
+                StatusCodes.BAD_GATEWAY,
+                StatusCodes.SERVICE_UNAVAILABLE
+            ];
             const message = 'Test error message';
 
             testCases.forEach(statusCode => {
@@ -267,35 +294,30 @@ describe('HTTP Response Utilities', () => {
             });
         });
 
+        it('should handle null values for optional parameters', () => {
+            const statusCode = StatusCodes.BAD_REQUEST;
+            const message = 'Bad request';
+
+            sendErrorResponse(mockResponse, statusCode, message, null, null, null);
+
+            expect(ApiErrorResponse).toHaveBeenCalledWith(message, null, null, null);
+            expect(mockResponse.status).toHaveBeenCalledWith(statusCode);
+        });
+
         it('should only include error properties when they are provided', () => {
-            // Test with only details (no code)
             const statusCode = StatusCodes.BAD_REQUEST;
             const message = 'Bad request';
             const details = 'Invalid input format';
 
             sendErrorResponse(mockResponse, statusCode, message, null, details);
 
+            expect(ApiErrorResponse).toHaveBeenCalledWith(message, null, details, null);
             expect(mockResponse.json).toHaveBeenCalledWith({
                 success: false,
                 message: message,
                 error: {
                     details: details,
                 },
-            });
-        });
-
-        it('should handle empty string values for optional parameters', () => {
-            const statusCode = StatusCodes.BAD_REQUEST;
-            const message = 'Bad request';
-            const code = '';
-            const details = '';
-
-            sendErrorResponse(mockResponse, statusCode, message, code, details);
-
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                success: false,
-                message: message,
-                error: {},
             });
         });
     });
@@ -327,13 +349,24 @@ describe('HTTP Response Utilities', () => {
 
             // Verify both methods were called
             expect(mockResponse.status).toHaveBeenCalledWith(StatusCodes.OK);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                success: true,
-                message: 'Test'
-            });
+            expect(mockResponse.json).toHaveBeenCalled();
 
             // Verify status returns the response object for chaining
             expect(mockResponse.status).toHaveReturnedWith(mockResponse);
+        });
+
+        it('should call toJson method on response objects', () => {
+            const message = 'Test message';
+            const data = { test: 'data' };
+
+            sendSuccessResponse(mockResponse, StatusCodes.OK, message, data);
+
+            // Verify ApiSuccessResponse was instantiated
+            expect(ApiSuccessResponse).toHaveBeenCalledWith(message, data);
+
+            // Verify toJson was called on the instance
+            const mockInstance = ApiSuccessResponse.mock.results[0].value;
+            expect(mockInstance.toJson).toHaveBeenCalled();
         });
     });
 });

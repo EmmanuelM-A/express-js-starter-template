@@ -1,21 +1,20 @@
 import os from "os";
 import ApiError from "../errors/api-error.mjs";
-import {StatusCodes} from "http-status-codes";
+import {COMMON_ERRORS} from "../errors/common-errors.mjs";
 
 /**
  * The service class for the server status checks.
  * Provides utilities like ping and health diagnostics.
  */
-export class ServerUtilServices {
+export default class ServerUtilServices {
     /**
      * Responds to ping requests to verify server is running.
      * 
      * @returns An object with a basic message and timestamp.
      */
-    static async ping() {
+    ping() {
         return {
             message: "pong",
-            timestamp: new Date().toISOString()
         }
     }
 
@@ -24,7 +23,7 @@ export class ServerUtilServices {
      * 
      * @returns Health check data.
      */
-    static async health() {
+    health() {
         return {
             status: 'ok',
             uptime: process.uptime(),
@@ -40,51 +39,19 @@ export class ServerUtilServices {
     }
 
     /**
-     * Returns the server uptime and status.
-     * 
-     * @returns An object containing the server status.
-     */
-    static async status() {
-        return {
-            status: 'running',
-            uptime: process.uptime()
-        };
-    }
-
-    /**
      * Returns a random error. Primarily used to test error handling capabilities.
      * 
      * @throws {ApiError} Throws a randomly selected error.
      */
-    static async testFail() {
-        const errors = [
-            new ApiError(
-                "Database connection failed!",
-                StatusCodes.INTERNAL_SERVER_ERROR,
-                "DATABASE_CONNECTION_ERROR"
-            ),
-            new ApiError(
-                "Unauthorized access!",
-                StatusCodes.UNAUTHORIZED,
-                "ACCESS_DENIED"
-            ),
-            new ApiError(
-                "Resource not found!",
-                StatusCodes.NOT_FOUND,
-                "RESOURCE_NOT_FOUND"
-            ),
-            new ApiError(
-                "Service unavailable!",
-                StatusCodes.SERVICE_UNAVAILABLE,
-                "SERVICE_IN_DEVELOPMENT"
-            ),
-            new ApiError(
-                "Validation error!",
-                StatusCodes.BAD_REQUEST,
-                "VALIDATION_ERROR"
-            )
-        ];
+    testFail() {
+        const keys = Object.keys(COMMON_ERRORS);
+        const statusCode = Number(keys[Math.floor(Math.random() * keys.length)]);
 
-        throw errors[Math.floor(Math.random() * errors.length)];
+        throw new ApiError(
+            COMMON_ERRORS[statusCode].message,
+            statusCode,
+            COMMON_ERRORS[statusCode].code,
+            COMMON_ERRORS[statusCode].details
+        );
     }
 }

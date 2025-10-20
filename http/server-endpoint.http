@@ -1,0 +1,19 @@
+### Variables
+
+@baseUrl = http://localhost:5000/api/v1
+
+
+### Ping server
+
+GET {{baseUrl}}/server/ping
+
+
+### Get server health
+
+GET {{baseUrl}}/server/health
+
+
+### Test error handling middleware
+
+GET {{baseUrl}}/server/test-fail
+
