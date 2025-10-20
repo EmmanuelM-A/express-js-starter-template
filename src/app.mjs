@@ -5,20 +5,17 @@ import {globalLimiter} from "./middleware/api-rate-limiter.mjs";
 import helmet from "helmet";
 import cors from "cors";
 import serverRouter from "./api/v1/routes/server-routes.mjs";
+import {helmetConfigurations} from "./middleware/helmet-configuration.mjs";
+import {settings} from "./config/settings.mjs";
+import {corsConfigurations} from "./middleware/cors-configuration.mjs";
+import {setupSecurity} from "./middleware/security-configurations.mjs";
 
 const app = express();
 
-// Middlewares
-app.use(helmet());
-app.use(cookieParser());
 app.use(express.json());
-app.use(
-    cors({
-        origin: "*",
-        methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-        credentials: true,
-    })
-);
+
+setupSecurity(app);
+
 app.use("/api/v1", globalLimiter);
 
 // Route setup

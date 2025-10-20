@@ -7,8 +7,9 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { ServerController } from '../../../src/api/v1/controllers/server-controller.mjs';
-import { errorHandler } from '../../../src/middleware/error-handler.mjs';
+import serverController, { ServerController } from '../../../src/api/v1/controllers/server-controller.mjs';
+import {errorHandler, setupErrorHandlers} from '../../../src/middleware/error-handler.mjs';
+import {setupSecurity} from "../../../src/middleware/security-configurations.mjs";
 
 
 describe('Server Endpoints E2E Tests', () => {
@@ -20,14 +21,15 @@ describe('Server Endpoints E2E Tests', () => {
         app = express();
         app.use(express.json());
 
+        setupSecurity(app);
+
         // Set up routes exactly as they would be in production
-        app.get('/api/v1/server/ping', ServerController.ping);
-        app.get('/api/v1/server/health', ServerController.health);
-        app.get('/api/v1/server/status', ServerController.status);
-        app.get('/api/v1/server/test-fail', ServerController.testFail);
+        app.get('/api/v1/server/ping', serverController.sendPing);
+        app.get('/api/v1/server/health', serverController.getHealthData);
+        app.get('/api/v1/server/test-fail', serverController.testErrorHandler);
 
         // Add error handling middleware
-        app.use(errorHandler);
+        setupErrorHandlers(app);
 
         // Start server on a random port
         await new Promise(resolve => {

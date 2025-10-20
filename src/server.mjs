@@ -30,8 +30,6 @@ async function startServer() {
     }
 }
 
-await startServer();
-
 
 /**
  * This ensures that when the server is stopped (e.g., by Ctrl+C or a SIGTERM 
@@ -59,3 +57,5 @@ async function shutdown() {
         process.exit(1);
     }
 }
+
+await startServer();
