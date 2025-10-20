@@ -126,6 +126,8 @@ dist
 .vscode-test
 .vscode
 
+.idea/
+
 # yarn v3
 .pnp.*
 .yarn/*

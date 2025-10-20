@@ -1,5 +1,5 @@
 import express from "express";
-import {setupErrorHandlers} from "./middleware/api-error-handler.mjs";
+import {setupErrorHandlers} from "./middleware/error-handler.mjs";
 import cookieParser from "cookie-parser";
 import {globalLimiter} from "./middleware/api-rate-limiter.mjs";
 import helmet from "helmet";

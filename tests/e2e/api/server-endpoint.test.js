@@ -8,7 +8,7 @@ import request from 'supertest';
 import express from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { ServerController } from '../../../src/api/v1/controllers/server-controller.mjs';
-import { apiErrorHandler } from '../../../src/middleware/api-error-handler.mjs';
+import { errorHandler } from '../../../src/middleware/error-handler.mjs';
 
 
 describe('Server Endpoints E2E Tests', () => {
@@ -27,7 +27,7 @@ describe('Server Endpoints E2E Tests', () => {
         app.get('/api/v1/server/test-fail', ServerController.testFail);
 
         // Add error handling middleware
-        app.use(apiErrorHandler);
+        app.use(errorHandler);
 
         // Start server on a random port
         await new Promise(resolve => {

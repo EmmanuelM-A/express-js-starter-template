@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 
 /**
- * Common error mappings used throughout the application.
+ * Common error mappings used as a fallback for the error-handler middleware.
  * Provides standardized error structure for known HTTP status codes.
  */
 export const COMMON_ERRORS = {
@@ -57,6 +57,12 @@ export const COMMON_ERRORS = {
         message: 'Gateway timeout.',
         code: 'GATEWAY_TIMEOUT',
         details: 'The server did not receive a timely response from an upstream service.'
+    },
+
+    [StatusCodes.BAD_GATEWAY]: {
+        message: 'Bad gateway.',
+        code: 'BAD_GATEWAY',
+        details: 'The server received an invalid response from an upstream service.'
     },
 
     [StatusCodes.INTERNAL_SERVER_ERROR]: {
